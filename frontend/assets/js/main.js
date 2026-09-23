@@ -585,25 +585,6 @@ if(button) button.disabled=false;
 }
 }
 
-const button=event.target.querySelector("button[type=submit]");
-
-if(button) button.disabled=true;
-
-try{
-await CodemAPI.post("/submissions",{
-challenge_id:challengeId,
-code
-});
-
-CodemUI.toast("Solution submitted");
-document.getElementById("challenge-workspace")?.remove();
-}catch(e){
-CodemUI.toast(e.message,"error");
-}finally{
-if(button) button.disabled=false;
-}
-}
-
 let codemDevelopers=[];
 
 async function loadDevelopers(){
