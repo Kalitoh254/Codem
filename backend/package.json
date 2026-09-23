@@ -1,0 +1,19 @@
+{
+  "name": "codem-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Codem developer platform backend API",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.1.0"
+  }
+}

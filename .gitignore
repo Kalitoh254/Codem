@@ -1,0 +1,40 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Temporary / audit artifacts
+.audit-tmp/
+*.tmp
+
+# SQLite runtime/database files
+database/*.db
+database/*.db-shm
+database/*.db-wal
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Build/output
+dist/
+build/
+coverage/
+
+# Runtime files
+*.pid
+*.pid.lock
+
+# Local backup files
+*.bak.*

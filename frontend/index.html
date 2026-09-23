@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codem</title>
+
+<link rel="stylesheet" href="./assets/css/main.css">
+
+<script src="./config/config.js"></script>
+<script src="./assets/js/api.js"></script>
+<script src="./assets/js/auth.js"></script>
+<script src="./assets/js/ui.js"></script>
+<script src="./assets/js/main.js" defer></script>
+</head>
+
+<body>
+
+<header class="site-header">
+
+<a class="brand" href="#">
+<span class="brand-symbol">&lt;/&gt;</span>
+<span>Codem</span>
+</a>
+
+<nav class="navigation">
+
+<a href="#/">Home</a>
+<a href="#/learning">Learn</a>
+<a href="#/practice">Practice</a>
+<a href="#/community">Community</a>
+<a href="#/developers">Developers</a>
+
+</nav>
+
+<div class="header-actions" id="nav-auth">
+
+<button class="btn btn-secondary" onclick="location.hash='#/login'">
+Log in
+</button>
+
+<button class="btn btn-primary" onclick="location.hash='#/register'">
+Get Started
+</button>
+
+</div>
+
+</header>
+
+<main id="app">
+
+<section class="hero">
+
+<div class="hero-content">
+
+<span class="eyebrow">
+THE DEVELOPER PLATFORM
+</span>
+
+<h1>
+Build your
+<span>next idea.</span>
+</h1>
+
+<p class="hero-description">
+Learn programming, build projects, solve real engineering challenges and connect with developers around the world.
+</p>
+
+<div class="hero-actions">
+
+<button class="btn btn-primary btn-large" onclick="location.hash='#/register'">
+Start Coding
+</button>
+
+<button class="btn btn-secondary btn-large" onclick="location.hash='#/learning'">
+Explore
+</button>
+
+</div>
+
+</div>
+
+<div class="code-preview">
+
+<div class="editor">
+
+<div class="editor-header">
+
+<div class="window-controls">
+<span></span><span></span><span></span>
+</div>
+
+<span class="file-name">server.js</span>
+
+</div>
+
+<div class="editor-body">
+
+<pre><code>const codem = {
+  learn: true,
+  build: true,
+  practice: true,
+  community: true
+};
+
+export default codem;</code></pre>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="platform">
+
+<div class="feature-grid">
+
+<article class="feature-card">
+<div class="feature-icon">&lt;/&gt;</div>
+<h3>Learn</h3>
+<p>Structured programming paths.</p>
+</article>
+
+<article class="feature-card">
+<div class="feature-icon">⚡</div>
+<h3>Practice</h3>
+<p>Daily coding challenges.</p>
+</article>
+
+<article class="feature-card">
+<div class="feature-icon">◎</div>
+<h3>Projects</h3>
+<p>Build portfolio-ready software.</p>
+</article>
+
+<article class="feature-card">
+<div class="feature-icon">◇</div>
+<h3>Community</h3>
+<p>Get help and help others.</p>
+</article>
+
+</div>
+
+</section>
+
+</main>
+
+</body>
+</html>

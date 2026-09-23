@@ -1,0 +1,594 @@
+CODEM FINAL INTEGRATION + SECURITY AUDIT
+Started: Wed Sep 23 16:02:44 EAT 2026
+Root: /data/data/com.termux/files/home/codem
+
+============================================================
+1. PROJECT STRUCTURE
+============================================================
+  [PASS] Exists: frontend
+  [PASS] Exists: backend
+  [PASS] Exists: database
+  [PASS] Exists: docs
+  [PASS] Exists: scripts
+  [PASS] Exists: backend/src/app.js
+  [PASS] Exists: backend/src/server.js
+  [PASS] Exists: backend/src/database/db.js
+
+============================================================
+2. DATABASE INTEGRITY
+============================================================
+  [PASS] SQLite database exists
+
+Database tables:
+api_keys
+audit_logs
+bookmarks
+certificates
+challenges
+comments
+community_posts
+courses
+email_verification_tokens
+enrollments
+lesson_progress
+lessons
+notifications
+password_reset_tokens
+post_tags
+profiles
+project_files
+project_members
+projects
+reactions
+schema_migrations
+sessions
+skills
+sqlite_sequence
+submissions
+tags
+user_skills
+users
+  [PASS] Database table: users
+  [PASS] Database table: profiles
+  [PASS] Database table: skills
+  [PASS] Database table: user_skills
+  [PASS] Database table: courses
+  [PASS] Database table: lessons
+  [PASS] Database table: enrollments
+  [PASS] Database table: lesson_progress
+  [PASS] Database table: certificates
+  [PASS] Database table: challenges
+  [PASS] Database table: submissions
+  [PASS] Database table: projects
+  [PASS] Database table: project_members
+  [PASS] Database table: project_files
+  [PASS] Database table: community_posts
+  [PASS] Database table: comments
+  [PASS] Database table: reactions
+  [PASS] Database table: tags
+  [PASS] Database table: post_tags
+  [PASS] Database table: bookmarks
+  [PASS] Database table: notifications
+  [PASS] Database table: sessions
+  [PASS] Database table: api_keys
+  [PASS] Database table: audit_logs
+  [PASS] Database table: schema_migrations
+
+SQLite integrity check:
+  [PASS] SQLite integrity_check = ok
+
+Foreign keys:
+  [WARN] SQLite CLI connection reports foreign_keys disabled. Application enables them at runtime.
+
+Journal mode:
+wal
+
+============================================================
+3. MIGRATION CONSISTENCY
+============================================================
+Migration files:
+001_create_password_reset_tokens.sql
+002_create_email_verification_tokens.sql
+003_add_accepted_solution.sql
+004_add_comment_parent.sql
+
+Applied migrations:
+1 | 001_create_password_reset_tokens.sql | 2026-09-23 10:44:32
+2 | 002_create_email_verification_tokens.sql | 2026-09-23 10:55:00
+3 | 003_add_accepted_solution.sql | 2026-09-23 11:11:14
+4 | 004_add_comment_parent.sql | 2026-09-23 11:27:17
+  [PASS] Migration recorded: 001_create_password_reset_tokens.sql
+  [PASS] Migration recorded: 002_create_email_verification_tokens.sql
+  [PASS] Migration recorded: 003_add_accepted_solution.sql
+  [PASS] Migration recorded: 004_add_comment_parent.sql
+
+============================================================
+4. JAVASCRIPT SYNTAX AUDIT
+============================================================
+  [PASS] All backend JavaScript files pass node --check
+
+============================================================
+5. APPLICATION LOAD
+============================================================
+  [PASS] Express application loads
+
+============================================================
+6. ROUTE MOUNT AUDIT
+============================================================
+Mounted API routes discovered in app.js:
+54:app.use("/api/v1/health", healthRoutes);
+55:app.use("/api/v1/auth", authRoutes);
+56:app.use("/api/v1/auth/password-reset", passwordResetRoutes);
+57:app.use("/api/v1/auth/email-verification", emailVerificationRoutes);
+58:app.use("/api/v1/users", userRoutes);
+59:app.use("/api/v1/skills", skillRoutes);
+60:app.use("/api/v1/community", communityRoutes);
+61:app.use("/api/v1/comments", commentRoutes);
+62:app.use("/api/v1/reactions", reactionRoutes);
+63:app.use("/api/v1/bookmarks", bookmarkRoutes);
+64:app.use("/api/v1/notifications", notificationRoutes);
+65:app.use("/api/v1/tags", tagRoutes);
+73:app.use("/api/v1/projects/members", projectMemberRoutes);
+74:app.use("/api/v1/projects/files", projectFileRoutes);
+75:app.use("/api/v1/projects", projectRoutes);
+77:app.use("/api/v1/learning", learningRoutes);
+78:app.use("/api/v1/lessons", lessonRoutes);
+79:app.use("/api/v1/courses", courseRoutes);
+81:app.use("/api/v1/developers", developerDashboardRoutes);
+82:app.use("/api/v1/challenges", challengeRoutes);
+83:app.use("/api/v1/submissions", submissionRoutes);
+
+Route files:
+authRoutes.js
+bookmarkRoutes.js
+challengeRoutes.js
+commentRoutes.js
+communityRoutes.js
+courseRoutes.js
+developerDashboardRoutes.js
+developerProfileRoutes.js
+developerSkillRoutes.js
+emailVerificationRoutes.js
+healthRoutes.js
+learningRoutes.js
+lessonRoutes.js
+notificationRoutes.js
+passwordResetRoutes.js
+projectFileRoutes.js
+projectMemberRoutes.js
+projectRoutes.js
+reactionRoutes.js
+skillRoutes.js
+submissionRoutes.js
+tagRoutes.js
+userRoutes.js
+  [PASS] Route module exists: healthRoutes.js
+  [PASS] Route module exists: userRoutes.js
+  [PASS] Route module exists: authRoutes.js
+  [PASS] Route module exists: communityRoutes.js
+  [PASS] Route module exists: commentRoutes.js
+  [PASS] Route module exists: reactionRoutes.js
+  [PASS] Route module exists: bookmarkRoutes.js
+  [PASS] Route module exists: notificationRoutes.js
+  [PASS] Route module exists: tagRoutes.js
+  [PASS] Route module exists: developerProfileRoutes.js
+  [PASS] Route module exists: developerSkillRoutes.js
+  [PASS] Route module exists: projectRoutes.js
+  [PASS] Route module exists: projectMemberRoutes.js
+  [PASS] Route module exists: projectFileRoutes.js
+  [PASS] Route module exists: courseRoutes.js
+  [PASS] Route module exists: lessonRoutes.js
+  [PASS] Route module exists: learningRoutes.js
+  [PASS] Route module exists: challengeRoutes.js
+  [PASS] Route module exists: submissionRoutes.js
+  [PASS] Route module exists: developerDashboardRoutes.js
+
+============================================================
+7. ROUTE ORDER CHECK
+============================================================
+Developer-related route mounts:
+81:app.use("/api/v1/developers", developerDashboardRoutes);
+  [WARN] Could not determine developer route ordering
+  [PASS] Developer dashboard route import/mount exists
+
+============================================================
+8. SECURITY CODE SCAN
+============================================================
+Scanning backend for dangerous execution primitives...
+/data/data/com.termux/files/home/codem/backend/src/services/evaluationService.js:5: * No child_process, eval, Function, VM, shell, dynamic import,
+  [WARN] Potential code-execution primitives detected above. Review each occurrence.
+
+Scanning for hard-coded credential patterns...
+  [PASS] No obvious hard-coded secrets detected in backend source
+
+Scanning for password_hash in response-oriented code...
+/data/data/com.termux/files/home/codem/backend/src/services/authService.js:119:        user.password_hash
+/data/data/com.termux/files/home/codem/backend/src/services/passwordResetService.js:177:            SET password_hash = ?,
+  [WARN] password_hash referenced outside repository/database layers. Review exposure risk.
+
+============================================================
+9. PROJECT FILE SECURITY
+============================================================
+  [PASS] Project file security check: startsWith("/")
+grep: warning: stray \ before 0
+  [WARN] Project file security check not found: includes("\0")
+  [PASS] Project file security check: split("/")\.includes("..")
+  [PASS] Project file security check: replaceAll("\\\\", "/")
+  [PASS] Project file content size limit exists
+
+============================================================
+10. OWNERSHIP / AUTHORIZATION AUDIT
+============================================================
+  [PASS] Ownership/security middleware exists: ownership.js
+  [PASS] Ownership/security middleware exists: postOwnership.js
+  [PASS] Ownership/security middleware exists: bookmarkOwnership.js
+  [WARN] Ownership/security middleware not found: requireCommentOwnerOrAdmin.js
+  [WARN] Ownership/security middleware not found: requireReactionOwnerOrAdmin.js
+  [PASS] Ownership/security middleware exists: projectOwnership.js
+
+Routes containing authentication middleware:
+/data/data/com.termux/files/home/codem/backend/src/routes/userRoutes.js:13:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/userRoutes.js:18:router.use(requireAuth);
+/data/data/com.termux/files/home/codem/backend/src/routes/skillRoutes.js:9:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/skillRoutes.js:20:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/authRoutes.js:10:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/authRoutes.js:69:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/authRoutes.js:75:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/emailVerificationRoutes.js:9:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/emailVerificationRoutes.js:17:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/communityRoutes.js:12:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/communityRoutes.js:31:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/communityRoutes.js:54:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/communityRoutes.js:69:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/communityRoutes.js:93:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/commentRoutes.js:10:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/commentRoutes.js:28:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/commentRoutes.js:46:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/reactionRoutes.js:11:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/reactionRoutes.js:29:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/reactionRoutes.js:43:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/reactionRoutes.js:57:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/bookmarkRoutes.js:10:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/bookmarkRoutes.js:15:router.use(requireAuth);
+/data/data/com.termux/files/home/codem/backend/src/routes/notificationRoutes.js:12:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/notificationRoutes.js:16:router.use(requireAuth);
+/data/data/com.termux/files/home/codem/backend/src/routes/tagRoutes.js:12:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/tagRoutes.js:30:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/tagRoutes.js:50:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/tagRoutes.js:56:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/developerProfileRoutes.js:8:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/developerProfileRoutes.js:16:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/developerProfileRoutes.js:22:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/developerSkillRoutes.js:10:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/developerSkillRoutes.js:18:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/developerSkillRoutes.js:24:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/developerSkillRoutes.js:39:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/developerSkillRoutes.js:54:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/projectRoutes.js:2:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/projectRoutes.js:24:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/projectRoutes.js:30:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/projectRoutes.js:63:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/projectRoutes.js:88:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/projectMemberRoutes.js:2:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/projectMemberRoutes.js:17:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/projectMemberRoutes.js:23:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/projectMemberRoutes.js:43:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/projectMemberRoutes.js:57:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/projectFileRoutes.js:2:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/projectFileRoutes.js:18:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/projectFileRoutes.js:24:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/projectFileRoutes.js:30:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/projectFileRoutes.js:50:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/projectFileRoutes.js:69:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/courseRoutes.js:2:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/courseRoutes.js:21:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/courseRoutes.js:36:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/courseRoutes.js:43:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/lessonRoutes.js:2:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/lessonRoutes.js:20:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/lessonRoutes.js:27:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/lessonRoutes.js:34:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/learningRoutes.js:2:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/learningRoutes.js:16:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/learningRoutes.js:22:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/learningRoutes.js:28:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/learningRoutes.js:34:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/challengeRoutes.js:2:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/challengeRoutes.js:20:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/challengeRoutes.js:27:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/challengeRoutes.js:34:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/submissionRoutes.js:2:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/submissionRoutes.js:15:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/submissionRoutes.js:21:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/submissionRoutes.js:27:    requireAuth,
+/data/data/com.termux/files/home/codem/backend/src/routes/developerDashboardRoutes.js:2:import { requireAuth } from "../middleware/auth.js";
+/data/data/com.termux/files/home/codem/backend/src/routes/developerDashboardRoutes.js:11:    requireAuth,
+
+============================================================
+11. FOREIGN KEY / CASCADE AUDIT
+============================================================
+Foreign-key definitions:
+api_keys|users|user_id|id|CASCADE
+audit_logs|users|user_id|id|SET NULL
+bookmarks|community_posts|post_id|id|CASCADE
+bookmarks|users|user_id|id|CASCADE
+certificates|courses|course_id|id|CASCADE
+certificates|users|user_id|id|CASCADE
+challenges|users|created_by|id|SET NULL
+comments|comments|parent_comment_id|id|CASCADE
+comments|users|author_id|id|CASCADE
+comments|community_posts|post_id|id|CASCADE
+community_posts|users|author_id|id|CASCADE
+courses|users|created_by|id|SET NULL
+email_verification_tokens|users|user_id|id|CASCADE
+enrollments|courses|course_id|id|CASCADE
+enrollments|users|user_id|id|CASCADE
+lesson_progress|lessons|lesson_id|id|CASCADE
+lesson_progress|users|user_id|id|CASCADE
+lessons|courses|course_id|id|CASCADE
+notifications|users|user_id|id|CASCADE
+password_reset_tokens|users|user_id|id|CASCADE
+post_tags|tags|tag_id|id|CASCADE
+post_tags|community_posts|post_id|id|CASCADE
+profiles|users|user_id|id|CASCADE
+project_files|projects|project_id|id|CASCADE
+project_members|users|user_id|id|CASCADE
+project_members|projects|project_id|id|CASCADE
+projects|users|owner_id|id|CASCADE
+reactions|comments|comment_id|id|CASCADE
+reactions|community_posts|post_id|id|CASCADE
+reactions|users|user_id|id|CASCADE
+sessions|users|user_id|id|CASCADE
+submissions|users|user_id|id|CASCADE
+submissions|challenges|challenge_id|id|CASCADE
+user_skills|skills|skill_id|id|CASCADE
+user_skills|users|user_id|id|CASCADE
+
+Checking important cascade relationships...
+  [PASS] community_posts.author_id -> users.id ON DELETE CASCADE
+  [PASS] comments.author_id -> users.id ON DELETE CASCADE
+  [PASS] comments.post_id -> community_posts.id ON DELETE CASCADE
+  [PASS] comments.parent_comment_id -> comments.id ON DELETE CASCADE
+  [PASS] reactions.user_id -> users.id ON DELETE CASCADE
+  [PASS] reactions.post_id -> community_posts.id ON DELETE CASCADE
+  [PASS] reactions.comment_id -> comments.id ON DELETE CASCADE
+  [PASS] bookmarks.user_id -> users.id ON DELETE CASCADE
+  [PASS] bookmarks.post_id -> community_posts.id ON DELETE CASCADE
+  [PASS] project_members.user_id -> users.id ON DELETE CASCADE
+  [PASS] project_members.project_id -> projects.id ON DELETE CASCADE
+  [PASS] project_files.project_id -> projects.id ON DELETE CASCADE
+
+============================================================
+12. INDEX AUDIT
+============================================================
+Indexes:
+idx_api_keys_user_id|api_keys
+idx_audit_logs_resource|audit_logs
+idx_audit_logs_user_id|audit_logs
+idx_bookmarks_user_id|bookmarks
+idx_comments_author_id|comments
+idx_comments_parent_comment_id|comments
+idx_comments_parent_id|comments
+idx_comments_post_id|comments
+idx_community_posts_author_id|community_posts
+idx_community_posts_status|community_posts
+idx_community_posts_type|community_posts
+idx_email_verification_tokens_expires_at|email_verification_tokens
+idx_email_verification_tokens_token_hash|email_verification_tokens
+idx_email_verification_tokens_user_id|email_verification_tokens
+idx_enrollments_course_id|enrollments
+idx_enrollments_user_id|enrollments
+idx_lesson_progress_lesson_id|lesson_progress
+idx_lesson_progress_user_id|lesson_progress
+idx_lessons_course_id|lessons
+idx_notifications_user_id|notifications
+idx_password_reset_tokens_expires_at|password_reset_tokens
+idx_password_reset_tokens_token_hash|password_reset_tokens
+idx_password_reset_tokens_user_id|password_reset_tokens
+idx_post_tags_tag_id|post_tags
+idx_profiles_user_id|profiles
+idx_project_files_project_id|project_files
+idx_project_members_user_id|project_members
+idx_projects_owner_id|projects
+idx_reactions_comment_id|reactions
+idx_reactions_post_id|reactions
+idx_sessions_user_id|sessions
+idx_submissions_challenge_id|submissions
+idx_submissions_user_id|submissions
+idx_user_skills_skill_id|user_skills
+  [PASS] Index exists: idx_comments_parent_comment_id
+
+============================================================
+13. ORPHAN RECORD AUDIT
+============================================================
+profiles|0
+user_skills|0
+comments|0
+project_members|0
+project_files|0
+lesson_progress|0
+submissions|0
+  [WARN] Potential orphan records in profiles|0: 
+  [WARN] Potential orphan records in user_skills|0: 
+  [WARN] Potential orphan records in comments|0: 
+  [WARN] Potential orphan records in project_members|0: 
+  [WARN] Potential orphan records in project_files|0: 
+  [WARN] Potential orphan records in lesson_progress|0: 
+  [WARN] Potential orphan records in submissions|0: 
+
+============================================================
+14. DUPLICATE / UNIQUENESS AUDIT
+============================================================
+  [PASS] No checked duplicate records found
+
+============================================================
+15. CRITICAL COLUMN AUDIT
+============================================================
+  [PASS] Critical columns verified: comments
+  [PASS] Critical columns verified: courses
+  [FAIL] Missing column: project_members.id
+  [PASS] Critical columns verified: project_members
+  [PASS] Critical columns verified: sessions
+  [PASS] Critical columns verified: project_files
+  [PASS] Critical columns verified: projects
+  [FAIL] Missing column: lesson_progress.completed
+  [PASS] Critical columns verified: lesson_progress
+  [PASS] Critical columns verified: users
+  [FAIL] Missing column: submissions.code
+  [FAIL] Missing column: submissions.feedback
+  [PASS] Critical columns verified: submissions
+  [PASS] Critical columns verified: community_posts
+  [PASS] Critical columns verified: challenges
+  [PASS] Critical columns verified: profiles
+  [PASS] Critical columns verified: notifications
+  [PASS] Critical columns verified: lessons
+  [PASS] Critical columns verified: enrollments
+
+============================================================
+16. SOURCE / SCHEMA CONSISTENCY
+============================================================
+Searching source for suspicious known legacy references...
+  [PASS] No backend reference detected: supabase
+  [PASS] No backend reference detected: better-sqlite3
+
+============================================================
+17. PACKAGE / DEPENDENCY AUDIT
+============================================================
+{
+  "name": "codem-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Codem developer platform backend API",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.1.0"
+  }
+}
+
+Installed dependency tree:
+codem-backend@0.1.0 /data/data/com.termux/files/home/codem/backend
+├── bcryptjs@3.0.3
+├── cors@2.8.6
+├── dotenv@17.4.2
+├── express-rate-limit@8.7.0
+├── express@5.2.1
+└── helmet@8.3.0
+
+
+============================================================
+18. LIVE SERVER SMOKE TEST
+============================================================
+bash: line 720: /tmp/codem_health.json: Permission denied
+Server not currently running. Starting temporary audit server...
+bash: line 728: /tmp/codem_audit_server.log: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+bash: line 740: /tmp/codem_health.json: Permission denied
+  [FAIL] Temporary Codem server failed to start
+
+============================================================
+19. PUBLIC API SMOKE TESTS
+============================================================
+  [WARN] GET / -> HTTP 000
+  [WARN] GET /api/v1/courses -> HTTP 000
+  [WARN] GET /api/v1/challenges -> HTTP 000
+  [WARN] GET /api/v1/projects/public -> HTTP 000
+
+============================================================
+20. AUTHORIZATION SMOKE TESTS
+============================================================
+  [WARN] /api/v1/auth/me returned HTTP 000 without authentication
+  [WARN] /api/v1/auth/logout returned HTTP 000 without authentication
+  [WARN] /api/v1/bookmarks returned HTTP 000 without authentication
+  [WARN] /api/v1/notifications returned HTTP 000 without authentication
+  [WARN] /api/v1/submissions returned HTTP 000 without authentication
+  [WARN] /api/v1/learning/courses/test/progress returned HTTP 000 without authentication
+  [WARN] /api/v1/projects/mine returned HTTP 000 without authentication
+
+============================================================
+21. PRIVATE PROJECT ACCESS CHECK
+============================================================
+Private projects currently in database: 0
+  [WARN] No private project exists, so leakage behavior could not be tested live
+
+============================================================
+22. SUBMISSION / EVALUATION SAFETY
+============================================================
+  [PASS] Evaluator uses pending state
+  [PASS] Evaluator uses unsupported-language state
+
+============================================================
+23. FRONTEND FOUNDATION
+============================================================
+  [PASS] Frontend file exists: frontend/index.html
+  [PASS] Frontend file exists: frontend/assets/css/main.css
+  [PASS] Frontend file exists: frontend/assets/js/main.js
+
+============================================================
+24. GIT / SECRET HYGIENE
+============================================================
+  [WARN] Codem is not currently a Git repository
+
+============================================================
+25. DATABASE HEALTH SNAPSHOT
+============================================================
+Database size:
+480K	/data/data/com.termux/files/home/codem/database/codem.db
+
+Row counts:
+users|2
+profiles|2
+community_posts|1
+comments|1
+reactions|0
+bookmarks|0
+notifications|0
+projects|0
+project_members|0
+project_files|0
+courses|0
+lessons|0
+enrollments|0
+lesson_progress|0
+challenges|0
+submissions|0
+
+============================================================
+FINAL AUDIT SUMMARY
+============================================================
+PASS: 107
+WARN: 27
+FAIL: 5
+
+Audit report:
+/data/data/com.termux/files/home/codem/codem-final-audit.txt
+
+STATUS: ISSUES REQUIRE ATTENTION
+
+Completed: Wed Sep 23 16:03:29 EAT 2026

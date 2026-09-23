@@ -1,0 +1,897 @@
+CODEM BACKEND: IMPLEMENT STEPS 126-135
+
+You are continuing development of the Codem developer platform.
+
+Implement ALL TEN steps below in one continuous development pass.
+
+IMPORTANT:
+- Work directly on the existing Codem codebase.
+- Inspect existing files before modifying them.
+- Do NOT rewrite the project.
+- Do NOT delete working functionality.
+- Do NOT introduce Supabase, Firebase, PostgreSQL, MongoDB, Prisma, Sequelize, TypeORM, or another ORM.
+- Continue using Node.js, Express, SQLite and Node.js built-in node:sqlite.
+- Preserve the existing repository -> service -> controller -> route architecture.
+- Reuse existing authentication, validation, RBAC and ownership middleware.
+- Do not create duplicate functionality.
+- Do not perform unrelated refactoring.
+- Do not stop between these steps waiting for approval.
+- Implement all ten steps and integrate them into the existing backend.
+- Perform one consolidated verification after implementation rather than wasting time on dozens of tiny tests.
+
+==================================================
+EXISTING CODEBASE
+==================================================
+
+Project root:
+
+~/codem
+
+Backend:
+
+~/codem/backend
+
+Database:
+
+~/codem/database
+
+Architecture:
+
+backend/src/
+├── config/
+├── controllers/
+├── database/
+├── middleware/
+├── repositories/
+├── routes/
+├── services/
+├── utils/
+└── server.js
+
+Current stack:
+
+Node.js
+Express 5
+ES modules
+Helmet
+CORS
+dotenv
+express-rate-limit
+bcryptjs
+SQLite
+node:sqlite / DatabaseSync
+
+Existing database domains:
+
+Identity
+Authentication
+Developer Profiles
+Skills
+Learning
+Practice
+Projects
+Community
+Engagement
+Notifications
+Sessions
+API Keys
+Audit Logs
+
+Existing tables include:
+
+users
+profiles
+skills
+user_skills
+courses
+lessons
+enrollments
+lesson_progress
+certificates
+challenges
+submissions
+projects
+project_members
+project_files
+community_posts
+comments
+reactions
+tags
+post_tags
+bookmarks
+notifications
+sessions
+api_keys
+audit_logs
+schema_migrations
+password_reset_tokens
+email_verification_tokens
+
+Existing authentication:
+
+registration
+login
+logout
+logout-all
+sessions
+password reset
+email verification
+Bearer authentication
+
+Existing security middleware includes:
+
+requireAuth
+requireRole
+requireSelf
+requireSelfByParam
+requirePostOwnerOrAdmin
+requireCommentOwnerOrAdmin
+requireReactionOwnerOrAdmin
+requireBookmarkOwnerOrAdmin
+validation middleware
+rate limiting
+
+Existing community functionality includes:
+
+posts
+comments
+nested replies
+post status
+accepted solution
+reactions
+bookmarks
+tags
+search
+notifications foundation
+ownership
+pagination
+
+Existing developer functionality includes:
+
+developer profiles
+developer skills
+
+Existing project foundation already contains:
+
+backend/src/repositories/projectRepository.js
+backend/src/services/projectService.js
+
+The project service already supports:
+
+createNewProject()
+getProject()
+getDeveloperProjects()
+getPublicProjects()
+editProject()
+removeProject()
+
+==================================================
+STEP 126
+PROJECT API
+==================================================
+
+Complete the project REST API.
+
+Create or update:
+
+backend/src/controllers/projectController.js
+backend/src/routes/projectRoutes.js
+
+Implement:
+
+POST /api/v1/projects
+GET /api/v1/projects
+GET /api/v1/projects/mine
+GET /api/v1/projects/:id
+PATCH /api/v1/projects/:id
+DELETE /api/v1/projects/:id
+
+Requirements:
+
+POST:
+- require authentication
+- owner must always be req.user.id
+- never trust ownerId supplied by client
+- validate name
+- validate description
+- validate visibility
+- return 201
+
+GET /projects:
+- public project discovery
+- pagination
+- default limit 20
+- maximum limit 50
+
+GET /projects/mine:
+- authenticated user
+- return current user's projects
+
+GET /projects/:id:
+- public projects can be viewed
+- private projects must not be exposed to unauthorized users
+
+PATCH:
+- authentication required
+- owner or admin only
+- validate input
+- owner_id cannot be changed
+
+DELETE:
+- authentication required
+- owner or admin only
+
+Ensure /mine is registered before /:id.
+
+==================================================
+STEP 127
+PROJECT SECURITY AND VISIBILITY
+==================================================
+
+Create:
+
+backend/src/middleware/projectOwnership.js
+
+Implement:
+
+requireProjectOwnerOrAdmin
+
+Requirements:
+
+- verify project exists
+- return 404 if missing
+- allow project owner
+- allow admin
+- reject unauthorized users with 403
+- attach project to req.project
+
+Implement centralized project visibility checks.
+
+Public projects:
+- publicly readable
+
+Private projects:
+- owner readable
+- authorized project members readable
+- admin readable
+
+Prevent private project leakage through:
+
+project discovery
+project detail
+developer portfolio
+developer profiles
+future search endpoints
+
+Do not duplicate security logic unnecessarily.
+
+==================================================
+STEP 128
+PROJECT TEAM MEMBERS
+==================================================
+
+Inspect the existing project_members schema.
+
+Create:
+
+backend/src/repositories/projectMemberRepository.js
+backend/src/services/projectMemberService.js
+backend/src/controllers/projectMemberController.js
+backend/src/routes/projectMemberRoutes.js
+
+Implement:
+
+GET /api/v1/projects/:projectId/members
+POST /api/v1/projects/:projectId/members
+PATCH /api/v1/projects/:projectId/members/:userId
+DELETE /api/v1/projects/:projectId/members/:userId
+
+Requirements:
+
+- authentication
+- project existence validation
+- target user existence validation
+- duplicate membership prevention
+- ownership protection
+- owner/admin authorization for membership administration
+- respect the actual membership role constraints in the database
+- do not invent incompatible roles
+- prevent unauthorized modifications
+- prevent unauthorized deletion
+- preserve foreign-key integrity
+- use transactions where multiple related writes occur
+
+Do not allow project ownership to be accidentally removed.
+
+==================================================
+STEP 129
+PROJECT FILES
+==================================================
+
+Inspect the existing project_files schema.
+
+Create:
+
+backend/src/repositories/projectFileRepository.js
+backend/src/services/projectFileService.js
+backend/src/controllers/projectFileController.js
+backend/src/routes/projectFileRoutes.js
+
+Implement:
+
+GET /api/v1/projects/:projectId/files
+GET /api/v1/projects/:projectId/files/:fileId
+POST /api/v1/projects/:projectId/files
+PATCH /api/v1/projects/:projectId/files/:fileId
+DELETE /api/v1/projects/:projectId/files/:fileId
+
+Requirements:
+
+- project authorization
+- file existence validation
+- ownership/member permission checks
+- metadata/content handling according to existing schema
+- prevent unauthorized modifications
+- prevent unauthorized deletion
+
+SECURITY:
+
+Never allow arbitrary server filesystem access.
+
+Reject path traversal such as:
+
+../../etc/passwd
+../../../
+/etc/passwd
+absolute paths
+other traversal variants
+
+Do not execute uploaded files.
+
+Do not expose server filesystem paths.
+
+Do not create a filesystem API.
+
+==================================================
+STEP 130
+DEVELOPER PORTFOLIO
+==================================================
+
+Create:
+
+backend/src/services/developerPortfolioService.js
+backend/src/controllers/developerPortfolioController.js
+backend/src/routes/developerPortfolioRoutes.js
+
+Implement:
+
+GET /api/v1/developers/:userId/portfolio
+
+Return:
+
+developer identity
+public profile
+skills
+public projects
+project descriptions
+project visibility
+appropriate team information
+
+Never expose:
+
+password_hash
+session tokens
+API keys
+audit logs
+private projects
+private project files
+internal filesystem paths
+unnecessary private account information
+
+Response structure:
+
+{
+  developer: {...},
+  profile: {...},
+  skills: [...],
+  projects: [...]
+}
+
+The endpoint should be suitable for a future public Codem developer profile page.
+
+==================================================
+STEP 131
+LEARNING COURSES
+==================================================
+
+Inspect:
+
+courses
+lessons
+enrollments
+lesson_progress
+certificates
+
+Create or complete:
+
+backend/src/repositories/courseRepository.js
+backend/src/services/courseService.js
+backend/src/controllers/courseController.js
+backend/src/routes/courseRoutes.js
+
+Implement:
+
+GET /api/v1/courses
+GET /api/v1/courses/:id
+POST /api/v1/courses
+PATCH /api/v1/courses/:id
+DELETE /api/v1/courses/:id
+
+Requirements:
+
+- public course discovery
+- pagination
+- filtering where supported
+- course creation authorization
+- course modification authorization
+- course deletion authorization
+- instructor/creator ownership protection
+- title validation
+- description validation
+- slug validation
+- difficulty validation
+- status validation
+- respect actual database constraints
+- do not invent incompatible status/difficulty values
+- never accept ownership from untrusted request data
+
+Inspect the schema before deciding valid values.
+
+==================================================
+STEP 132
+LESSONS, ENROLLMENT AND PROGRESS
+==================================================
+
+Implement learning progression.
+
+Create or complete the necessary repositories, services, controllers and routes.
+
+Implement:
+
+GET /api/v1/courses/:courseId/lessons
+
+GET /api/v1/lessons/:id
+
+POST /api/v1/courses/:courseId/enroll
+
+GET /api/v1/courses/:courseId/enrollment
+
+POST /api/v1/lessons/:lessonId/progress
+
+GET /api/v1/courses/:courseId/progress
+
+Requirements:
+
+- authentication for enrollment/progress
+- verify course exists
+- prevent duplicate enrollment
+- verify lesson belongs to course
+- verify user is enrolled before modifying progress
+- users may only modify their own progress
+- prevent cross-user progress manipulation
+- validate progress values
+- preserve lesson ordering if schema supports it
+- respect existing lesson types
+- calculate course progress consistently
+- prevent impossible progress values
+
+Do not implement certificate issuance yet.
+
+Prepare clean architecture for future certificate generation.
+
+==================================================
+STEP 133
+PRACTICE AND CHALLENGES
+==================================================
+
+Inspect:
+
+challenges
+submissions
+
+Create or complete:
+
+backend/src/repositories/challengeRepository.js
+backend/src/repositories/submissionRepository.js
+backend/src/services/challengeService.js
+backend/src/services/submissionService.js
+backend/src/controllers/challengeController.js
+backend/src/controllers/submissionController.js
+backend/src/routes/challengeRoutes.js
+backend/src/routes/submissionRoutes.js
+
+Implement:
+
+GET /api/v1/challenges
+GET /api/v1/challenges/:id
+POST /api/v1/challenges
+PATCH /api/v1/challenges/:id
+DELETE /api/v1/challenges/:id
+
+POST /api/v1/challenges/:challengeId/submissions
+GET /api/v1/challenges/:challengeId/submissions
+GET /api/v1/submissions/:id
+
+Requirements:
+
+- public challenge discovery where appropriate
+- pagination
+- filtering where schema supports it
+- authenticated submissions
+- challenge administration protection
+- users can access their own submissions
+- authorized administrators/instructors can access submissions where supported
+- verify challenge exists
+- validate submission content
+- preserve submission history
+- prevent unauthorized submission access
+- do not overwrite historical submissions unless schema explicitly requires it
+
+CRITICAL:
+
+DO NOT execute submitted source code.
+
+DO NOT use:
+
+child_process
+exec
+spawn
+eval
+Function()
+shell execution
+arbitrary interpreter execution
+
+Build only the API/evaluation architecture.
+
+==================================================
+STEP 134
+SAFE EVALUATION FOUNDATION
+==================================================
+
+Create:
+
+backend/src/services/evaluationService.js
+
+Implement a safe abstraction:
+
+evaluateSubmission(submission)
+
+The service should support statuses such as:
+
+pending
+manual_review
+unsupported
+
+Use the actual challenge/submission schema when deciding the returned structure.
+
+Never falsely claim that submitted code executed.
+
+Never execute untrusted source code.
+
+The future system should allow an isolated sandbox/worker to be added later without rewriting the submission API.
+
+Keep evaluation isolated from HTTP controllers.
+
+Only create a migration if genuinely required.
+
+==================================================
+STEP 135
+DEVELOPER DASHBOARD
+==================================================
+
+Create:
+
+backend/src/services/developerDashboardService.js
+backend/src/controllers/developerDashboardController.js
+backend/src/routes/developerDashboardRoutes.js
+
+Implement:
+
+GET /api/v1/developers/me/dashboard
+
+Authentication required.
+
+Return actual database-derived statistics:
+
+user identity
+profile completion
+skills count
+projects count
+public projects count
+community posts count
+comments count
+bookmarks count
+course enrollments
+completed lessons
+challenge submissions
+unread notifications
+
+Recommended structure:
+
+{
+  user: {...},
+  profile: {
+    completionPercentage: 0
+  },
+  skills: {
+    total: 0
+  },
+  projects: {
+    total: 0,
+    public: 0
+  },
+  community: {
+    posts: 0,
+    comments: 0,
+    bookmarks: 0
+  },
+  learning: {
+    enrollments: 0,
+    completedLessons: 0
+  },
+  practice: {
+    submissions: 0
+  },
+  notifications: {
+    unread: 0
+  }
+}
+
+Calculate values from actual database records.
+
+Never accept fabricated statistics from clients.
+
+Avoid unnecessary N+1 queries.
+
+Use efficient aggregate SQL queries.
+
+==================================================
+DATABASE RULES
+==================================================
+
+Before creating migrations:
+
+inspect the actual current schema.
+
+Do not create:
+
+duplicate columns
+duplicate tables
+duplicate indexes
+
+Do not destroy existing data.
+
+Use the existing migration system:
+
+database/migrations/
+schema_migrations
+
+Migrations must:
+
+- use sequential names
+- preserve existing data
+- use foreign keys
+- add useful indexes
+- use transactions where appropriate
+
+If the required functionality already fits the existing schema, do not create an unnecessary migration.
+
+==================================================
+SECURITY RULES
+==================================================
+
+Review every endpoint for:
+
+authentication
+authorization
+ownership
+IDOR
+SQL injection
+input validation
+private data exposure
+path traversal
+duplicate records
+foreign-key integrity
+pagination abuse
+oversized input
+privilege escalation
+
+Never expose:
+
+password_hash
+session tokens
+API keys
+private project information
+internal audit data
+server filesystem paths
+
+Use the existing API response format:
+
+{
+  "success": true,
+  "data": ...
+}
+
+Errors:
+
+{
+  "success": false,
+  "error": {
+    "code": "...",
+    "message": "..."
+  }
+}
+
+Use appropriate HTTP status codes:
+
+200
+201
+400
+401
+403
+404
+409
+500
+
+==================================================
+ARCHITECTURE
+==================================================
+
+Maintain:
+
+Route
+↓
+Middleware
+↓
+Controller
+↓
+Service
+↓
+Repository
+↓
+SQLite
+
+Controllers:
+- HTTP concerns only
+- thin
+
+Services:
+- business rules
+- validation beyond generic request validation
+- authorization-sensitive business logic where appropriate
+
+Repositories:
+- SQL
+- database operations
+
+Middleware:
+- authentication
+- authorization
+- ownership
+- request validation
+
+==================================================
+ROUTE ORDER
+==================================================
+
+Pay special attention to Express route ordering.
+
+Static routes must come before dynamic routes.
+
+Examples:
+
+/mine
+/search
+/dashboard
+
+must come before:
+
+/:id
+
+Do not break existing routes.
+
+==================================================
+APP INTEGRATION
+==================================================
+
+Update:
+
+backend/src/app.js
+
+Mount all new routes.
+
+Ensure imports are correct.
+
+Ensure no route collisions.
+
+Ensure existing endpoints remain available.
+
+Ensure backend starts successfully.
+
+==================================================
+VERIFICATION
+==================================================
+
+Do not spend the entire process running individual CRUD tests.
+
+After implementing all ten steps perform one consolidated verification:
+
+1. verify imports
+2. verify syntax
+3. verify server startup
+4. verify database connection
+5. verify migration state
+6. verify route registration
+7. verify authentication
+8. verify authorization
+9. verify ownership
+10. verify public/private visibility
+11. verify project API
+12. verify project members
+13. verify project files
+14. verify developer portfolio
+15. verify course endpoints
+16. verify enrollment/progress
+17. verify challenges/submissions
+18. verify dashboard queries
+19. verify existing community endpoints
+20. verify sensitive information is not exposed
+
+Fix issues discovered during this verification.
+
+==================================================
+QUALITY REQUIREMENT
+==================================================
+
+These ten steps must feel like one coherent Codem backend.
+
+Do not produce ten disconnected prototypes.
+
+Reuse existing infrastructure.
+
+Avoid duplicate SQL.
+
+Avoid unnecessary dependencies.
+
+Avoid giant controllers.
+
+Avoid giant services.
+
+Avoid unnecessary abstraction.
+
+Use clear names.
+
+Use consistent error codes.
+
+Preserve existing security.
+
+Preserve existing functionality.
+
+==================================================
+FINAL REPORT
+==================================================
+
+After implementation, provide:
+
+1. Completed steps
+2. Files created
+3. Files modified
+4. Database migrations added
+5. API endpoints added
+6. Security improvements
+7. Bugs discovered and fixed
+8. Functionality intentionally deferred
+
+Do not claim a feature is complete if it is only scaffolded.
+
+Actually implement, integrate and verify all ten steps before reporting completion.
