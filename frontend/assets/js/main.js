@@ -405,6 +405,13 @@ ${CodemUI.loading("Loading courses...")}
 
 </section>`,
 
+"/learning/course/:id":()=>`
+<section class="page course-page">
+<div id="course-view-content">
+${CodemUI.loading("Loading course...")}
+</div>
+</section>`,
+
 "/practice":()=>`
 <section class="page">
 <div class="page-header">
