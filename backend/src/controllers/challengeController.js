@@ -26,7 +26,10 @@ export function createChallengeController(req, res, next) {
     try {
         res.status(201).json({
             success: true,
-            data: service.createNewChallenge(req.body)
+            data: service.createNewChallenge(
+                req.body,
+                req.user.id
+            )
         });
     } catch (error) {
         next(error);

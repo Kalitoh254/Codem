@@ -72,7 +72,7 @@ export function getChallenge(id) {
     return challenge;
 }
 
-export function createNewChallenge(data) {
+export function createNewChallenge(data, createdBy) {
     const title = data.title?.trim();
 
     if (!title || title.length < 2 || title.length > 200) {
@@ -102,7 +102,7 @@ export function createNewChallenge(data) {
         starterCode: data.starterCode || null,
         solutionCode: data.solutionCode || null,
         testCases: data.testCases || null,
-        createdBy: data.createdBy || null,
+        createdBy,
         status: data.status || "draft"
     });
 }
