@@ -48,15 +48,23 @@ export function submitChallenge(userId, challengeId, data) {
         language: data.language
     });
 
+    const databaseStatus =
+        evaluation.status === "pending"
+            ? "queued"
+            : evaluation.status === "unsupported"
+                ? "error"
+                : evaluation.status;
+
     return createSubmission({
         id: crypto.randomUUID(),
         userId,
         challengeId,
-        code: data.code,
+        sourceCode: data.code,
         language: data.language,
-        status: evaluation.status,
+        status: databaseStatus,
         score: evaluation.score,
-        feedback: evaluation.feedback
+        executionTimeMs: null,
+        memoryUsed: null
     });
 }
 

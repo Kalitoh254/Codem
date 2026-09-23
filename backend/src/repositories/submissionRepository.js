@@ -6,25 +6,27 @@ export function createSubmission(data) {
             id,
             user_id,
             challenge_id,
-            code,
             language,
+            source_code,
             status,
             score,
-            feedback,
-            created_at
+            execution_time_ms,
+            memory_used,
+            submitted_at
         )
         VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP
         )
     `).run(
         data.id,
         data.userId,
         data.challengeId,
-        data.code,
         data.language,
+        data.sourceCode,
         data.status,
-        data.score,
-        data.feedback
+        data.score ?? 0,
+        data.executionTimeMs ?? null,
+        data.memoryUsed ?? null
     );
 
     return findSubmission(data.id);
@@ -36,12 +38,13 @@ export function findSubmission(id) {
             s.id,
             s.user_id,
             s.challenge_id,
-            s.code,
             s.language,
+            s.source_code,
             s.status,
             s.score,
-            s.feedback,
-            s.created_at,
+            s.execution_time_ms,
+            s.memory_used,
+            s.submitted_at,
             c.title AS challenge_title
         FROM submissions s
         JOIN challenges c ON c.id = s.challenge_id
@@ -58,14 +61,15 @@ export function listUserSubmissions(userId, challengeId) {
                 s.language,
                 s.status,
                 s.score,
-                s.feedback,
-                s.created_at,
+                s.execution_time_ms,
+                s.memory_used,
+                s.submitted_at,
                 c.title AS challenge_title
             FROM submissions s
             JOIN challenges c ON c.id = s.challenge_id
             WHERE s.user_id = ?
             AND s.challenge_id = ?
-            ORDER BY s.created_at DESC
+            ORDER BY s.submitted_at DESC
         `).all(userId, challengeId);
     }
 
@@ -76,12 +80,13 @@ export function listUserSubmissions(userId, challengeId) {
             s.language,
             s.status,
             s.score,
-            s.feedback,
-            s.created_at,
+            s.execution_time_ms,
+            s.memory_used,
+            s.submitted_at,
             c.title AS challenge_title
         FROM submissions s
         JOIN challenges c ON c.id = s.challenge_id
         WHERE s.user_id = ?
-        ORDER BY s.created_at DESC
+        ORDER BY s.submitted_at DESC
     `).all(userId);
 }

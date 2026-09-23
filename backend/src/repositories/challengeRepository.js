@@ -55,17 +55,37 @@ export function createChallenge(data) {
         INSERT INTO challenges (
             id,
             title,
+            slug,
             description,
             difficulty,
+            language,
+            instructions,
+            starter_code,
+            solution_code,
+            test_cases,
+            created_by,
+            status,
             created_at,
             updated_at
         )
-        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
     `).run(
         data.id,
         data.title,
+        data.slug,
         data.description,
-        data.difficulty
+        data.difficulty,
+        data.language ?? null,
+        data.instructions ?? null,
+        data.starterCode ?? null,
+        data.solutionCode ?? null,
+        data.testCases ?? null,
+        data.createdBy ?? null,
+        data.status ?? "draft"
     );
 
     return findChallenge(data.id);
@@ -75,14 +95,23 @@ export function updateChallenge(id, data) {
     const fields = [];
     const params = [];
 
-    for (const field of [
-        "title",
-        "description",
-        "difficulty"
-    ]) {
-        if (data[field] !== undefined) {
-            fields.push(`${field} = ?`);
-            params.push(data[field]);
+    const fieldMap = {
+        title: "title",
+        slug: "slug",
+        description: "description",
+        difficulty: "difficulty",
+        language: "language",
+        instructions: "instructions",
+        starterCode: "starter_code",
+        solutionCode: "solution_code",
+        testCases: "test_cases",
+        status: "status"
+    };
+
+    for (const [input, column] of Object.entries(fieldMap)) {
+        if (data[input] !== undefined) {
+            fields.push(`${column} = ?`);
+            params.push(data[input]);
         }
     }
 

@@ -8,6 +8,15 @@ import {
     deleteChallenge
 } from "../repositories/challengeRepository.js";
 
+function slugify(value) {
+    return value
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 100);
+}
+
 function assertChallenge(id) {
     const challenge = findChallenge(id);
 
@@ -63,11 +72,28 @@ export function createNewChallenge(data) {
         );
     }
 
+    const slug = slugify(data.slug || title);
+
+    if (!slug) {
+        throw Object.assign(
+            new Error("A valid challenge slug is required."),
+            { status: 400, code: "INVALID_CHALLENGE_SLUG" }
+        );
+    }
+
     return createChallenge({
         id: crypto.randomUUID(),
         title,
+        slug,
         description: data.description?.trim() || "",
-        difficulty: data.difficulty || "beginner"
+        difficulty: data.difficulty || "beginner",
+        language: data.language || null,
+        instructions: data.instructions?.trim() || null,
+        starterCode: data.starterCode || null,
+        solutionCode: data.solutionCode || null,
+        testCases: data.testCases || null,
+        createdBy: data.createdBy || null,
+        status: data.status || "draft"
     });
 }
 
