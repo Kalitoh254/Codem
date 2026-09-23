@@ -1623,13 +1623,303 @@ Open Course
 </div>`;
 }
 
+async function openCourse(courseId){
+if(!courseId) return;
+
+location.hash=`#/learning/course/${encodeURIComponent(courseId)}`;
+}
+
+async function loadCourseView(courseId){
+const target=document.getElementById("course-view-content");
+
+if(!target) return;
+
+target.innerHTML=CodemUI.loading("Loading course...");
+
+try{
+const [courseResult,lessonsResult,progressResult]=await Promise.all([
+CodemAPI.get(`/courses/${encodeURIComponent(courseId)}`),
+CodemAPI.get(`/lessons/course/${encodeURIComponent(courseId)}`).catch(()=>({data:[]})),
+CodemAPI.get(`/learning/courses/${encodeURIComponent(courseId)}/progress`).catch(()=>null)
+]);
+
+const course=courseResult?.data||courseResult?.course||courseResult;
+const lessons=Array.isArray(lessonsResult)
+?lessonsResult
+:lessonsResult?.data||lessonsResult?.lessons||[];
+
+const progress=progressResult?.data||progressResult?.progress||progressResult;
+
+renderCourseView(course,lessons,progress);
+
+}catch(e){
+target.innerHTML=CodemUI.error(e.message);
+}
+}
+
+function renderCourseView(course,lessons,progress){
+const target=document.getElementById("course-view-content");
+
+if(!target) return;
+
+if(!course){
+target.innerHTML=CodemUI.empty("Course not found.");
+return;
+}
+
+const title=course.title||course.name||"Untitled Course";
+const description=course.description||"No course description available.";
+const level=course.level||course.difficulty||"All levels";
+const category=course.category||course.topic||"Development";
+
+const completedLessons=Array.isArray(progress?.lessons)
+?progress.lessons.filter(item=>item.completed).length
+:Number(progress?.completed_lessons||progress?.completedLessons||0);
+
+const totalLessons=lessons.length;
+const calculatedProgress=totalLessons
+?Math.round((completedLessons/totalLessons)*100)
+:Number(progress?.percentage||progress?.progress||0);
+
+target.innerHTML=`
+
+<div class="course-view">
+
+<div class="course-view-top">
+<button
+class="btn btn-secondary"
+onclick="location.hash='#/learning'">
+← Back to Learning
+</button>
+</div>
+
+<div class="course-overview">
+
+<div class="course-overview-main">
+
+<span class="eyebrow">${CodemUI.escape(category)}</span>
+
+<h1>${CodemUI.escape(title)}</h1>
+
+<p>${CodemUI.escape(description)}</p>
+
+<div class="course-overview-meta">
+<span>${CodemUI.escape(level)}</span>
+<span>${totalLessons} lesson${totalLessons===1?"":"s"}</span>
+</div>
+
+</div>
+
+<div class="course-progress-card">
+
+<span class="card-label">YOUR PROGRESS</span>
+
+<strong>${calculatedProgress}%</strong>
+
+<div class="progress-track">
+<div
+class="progress-bar"
+style="width:${Math.max(0,Math.min(100,calculatedProgress))}%">
+</div>
+</div>
+
+<p>
+${completedLessons} of ${totalLessons} lessons completed
+</p>
+
+<button
+class="btn btn-primary"
+onclick="enrollCourse('${CodemUI.escape(course.id||course.course_id||"")}')">
+Start / Continue Course
+</button>
+
+</div>
+
+</div>
+
+<div class="lesson-section">
+
+<div class="section-heading">
+<span class="eyebrow">COURSE CONTENT</span>
+<h2>Lessons</h2>
+<p>Work through each lesson and track your progress as you learn.</p>
+</div>
+
+<div class="lesson-list">
+
+${lessons.length?lessons.map((lesson,index)=>{
+
+const lessonProgress=Array.isArray(progress?.lessons)
+?progress.lessons.find(item=>
+String(item.lesson_id||item.id)===String(lesson.id)
+)
+:null;
+
+const completed=Boolean(
+lesson.completed||
+lessonProgress?.completed
+);
+
+const lessonTitle=lesson.title||lesson.name||`Lesson ${index+1}`;
+const lessonDescription=lesson.description||"Continue learning through this lesson.";
+
+return `
+<article class="lesson-item ${completed?"lesson-completed":""}">
+
+<div class="lesson-number">
+${completed?"✓":String(index+1).padStart(2,"0")}
+</div>
+
+<div class="lesson-content">
+<h3>${CodemUI.escape(lessonTitle)}</h3>
+<p>${CodemUI.escape(lessonDescription)}</p>
+</div>
+
+<div class="lesson-actions">
+
+<button
+class="btn btn-secondary"
+onclick="openLesson('${CodemUI.escape(lesson.id||lesson.lesson_id||"")}')">
+${completed?"Review":"Open"}
+</button>
+
+</div>
+
+</article>`;
+
+}).join("")
+:CodemUI.empty("This course does not have any lessons yet.")}
+
+</div>
+
+</div>
+
+</div>`;
+}
+
+async function openLesson(lessonId){
+if(!lessonId) return;
+
+try{
+const result=await CodemAPI.get(`/lessons/${encodeURIComponent(lessonId)}`);
+const lesson=result?.data||result?.lesson||result;
+
+renderLessonModal(lesson);
+
+}catch(e){
+CodemUI.toast(e.message,"error");
+}
+}
+
+function renderLessonModal(lesson){
+const existing=document.getElementById("lesson-modal");
+
+if(existing) existing.remove();
+
+const modal=document.createElement("div");
+
+modal.id="lesson-modal";
+modal.className="lesson-modal";
+
+modal.innerHTML=`
+<div class="lesson-modal-backdrop" onclick="closeLessonModal()"></div>
+
+<div class="lesson-modal-panel">
+
+<div class="lesson-modal-header">
+
+<div>
+<span class="eyebrow">LESSON</span>
+<h2>${CodemUI.escape(lesson?.title||lesson?.name||"Lesson")}</h2>
+</div>
+
+<button
+class="btn btn-secondary"
+onclick="closeLessonModal()">
+Close
+</button>
+
+</div>
+
+<div class="lesson-modal-body">
+
+<p>
+${CodemUI.escape(
+lesson?.content||
+lesson?.description||
+"No lesson content is available yet."
+)}
+</p>
+
+</div>
+
+<div class="lesson-modal-footer">
+
+<button
+class="btn btn-primary"
+onclick="completeLesson('${CodemUI.escape(lesson?.id||lesson?.lesson_id||"")}')">
+Mark Lesson Complete
+</button>
+
+</div>
+
+</div>`;
+
+document.body.appendChild(modal);
+}
+
+function closeLessonModal(){
+const modal=document.getElementById("lesson-modal");
+
+if(modal) modal.remove();
+}
+
+async function completeLesson(lessonId){
+if(!lessonId) return;
+
+try{
+await CodemAPI.patch(
+`/learning/lessons/${encodeURIComponent(lessonId)}/progress`,
+{completed:true}
+);
+
+CodemUI.toast("Lesson marked as complete");
+closeLessonModal();
+
+const courseId=location.hash.split("/")[3];
+
+if(courseId){
+await loadCourseView(decodeURIComponent(courseId));
+}
+
+}catch(e){
+CodemUI.toast(e.message,"error");
+}
+}
+
 async function enrollCourse(courseId){
 if(!courseId) return;
 
 try{
-await CodemAPI.post(`/courses/${encodeURIComponent(courseId)}/enroll`,{});
+await CodemAPI.post(
+`/learning/courses/${encodeURIComponent(courseId)}/enroll`,
+{}
+);
+
 CodemUI.toast("Course enrollment successful");
+
+const courseIdFromHash=location.hash.split("/")[3];
+
+if(courseIdFromHash){
+await loadCourseView(decodeURIComponent(courseIdFromHash));
+}
+
 }catch(e){
+CodemUI.toast(e.message,"error");
+}
+}
+
+atch(e){
 CodemUI.toast(e.message,"error");
 }
 }
