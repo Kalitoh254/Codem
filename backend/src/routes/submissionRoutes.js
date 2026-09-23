@@ -1,6 +1,7 @@
 import express from "express";
 import { requireAuth } from "../middleware/auth.js";
 import { validateBody } from "../middleware/validate.js";
+import { submissionRateLimit } from "../middleware/rateLimit.js";
 
 import {
     submitController,
@@ -25,6 +26,7 @@ router.get(
 router.post(
     "/challenge/:challengeId",
     requireAuth,
+    submissionRateLimit,
     validateBody({
         code: {
             required: true,
