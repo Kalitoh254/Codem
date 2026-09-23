@@ -1,6 +1,8 @@
 import app from "./app.js";
 import env from "./config/env.js";
-import "./database/migrate.js";
+import { runMigrations } from "./database/migrate.js";
+
+runMigrations();
 
 const server = app.listen(env.port, () => {
     console.log(`
