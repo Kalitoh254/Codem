@@ -521,6 +521,15 @@ Close
 </div>
 
 <form id="challenge-submit-form">
+
+<label class="form-label">Language</label>
+<select id="challenge-language" class="input">
+<option value="javascript">JavaScript</option>
+<option value="python">Python</option>
+<option value="cpp">C++</option>
+<option value="java">Java</option>
+</select>
+
 <textarea
 id="challenge-code"
 class="input code-input"
@@ -548,10 +557,32 @@ async function submitChallenge(event,challengeId){
 event.preventDefault();
 
 const code=document.getElementById("challenge-code")?.value.trim();
+const language=document.getElementById("challenge-language")?.value;
 
 if(!code){
 CodemUI.toast("Write a solution before submitting","error");
 return;
+}
+
+const button=event.target.querySelector("button[type=submit]");
+if(button) button.disabled=true;
+
+try{
+await CodemAPI.post(
+`/submissions/challenge/${encodeURIComponent(challengeId)}`,
+{
+code,
+language
+}
+);
+
+CodemUI.toast("Solution submitted successfully");
+document.getElementById("challenge-workspace")?.remove();
+}catch(e){
+CodemUI.toast(e.message,"error");
+}finally{
+if(button) button.disabled=false;
+}
 }
 
 const button=event.target.querySelector("button[type=submit]");
