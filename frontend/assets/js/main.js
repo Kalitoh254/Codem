@@ -546,11 +546,200 @@ Submit Solution
 
 target.prepend(workspace);
 
+renderSubmissionHistoryContainers();
+
+loadSubmissionHistory(challengeId);
+
 document
 .getElementById("challenge-submit-form")
 ?.addEventListener("submit",event=>{
 submitChallenge(event,challengeId);
 });
+}
+
+function formatSubmissionStatus(status){
+const labels={
+queued:"Queued",
+running:"Running",
+passed:"Passed",
+failed:"Failed",
+error:"Error"
+};
+
+return labels[status]||"Unknown";
+}
+
+function submissionStatusClass(status){
+const allowed=["queued","running","passed","failed","error"];
+return allowed.includes(status) ? status : "unknown";
+}
+
+function formatSubmissionDate(value){
+if(!value) return "Not available";
+
+const date=new Date(value);
+
+if(Number.isNaN(date.getTime())){
+return String(value);
+}
+
+return date.toLocaleString();
+}
+
+function formatSubmissionMetric(value,unit){
+if(value===null||value===undefined||value===""){
+return "Not available";
+}
+
+return `${CodemUI.escape(String(value))}${unit||""}`;
+}
+
+function renderSubmissionResult(submission){
+const target=document.getElementById("submission-result");
+
+if(!target) return;
+
+if(!submission){
+target.innerHTML="";
+return;
+}
+
+const status=submission.status||"queued";
+const score=submission.score;
+
+target.innerHTML=`
+<div class="submission-result-card">
+<div class="submission-result-header">
+<div>
+<span class="card-label">SUBMISSION RESULT</span>
+<h3>Evaluation Status</h3>
+</div>
+
+<span class="submission-status submission-status-${submissionStatusClass(status)}">
+${CodemUI.escape(formatSubmissionStatus(status))}
+</span>
+</div>
+
+<div class="submission-result-grid">
+<div>
+<span class="submission-metric-label">Language</span>
+<strong>${CodemUI.escape(submission.language||"Not available")}</strong>
+</div>
+
+<div>
+<span class="submission-metric-label">Score</span>
+<strong>${score===null||score===undefined?"Pending":CodemUI.escape(String(score))}</strong>
+</div>
+
+<div>
+<span class="submission-metric-label">Submitted</span>
+<strong>${CodemUI.escape(formatSubmissionDate(submission.submitted_at))}</strong>
+</div>
+
+<div>
+<span class="submission-metric-label">Execution time</span>
+<strong>${formatSubmissionMetric(submission.execution_time_ms," ms")}</strong>
+</div>
+
+<div>
+<span class="submission-metric-label">Memory used</span>
+<strong>${formatSubmissionMetric(submission.memory_used,"")}</strong>
+</div>
+</div>
+
+<div class="submission-result-message">
+${
+status==="queued"
+? "Your solution has been accepted and queued for automated evaluation. Execution is not yet available."
+: status==="running"
+? "Your solution is currently being evaluated."
+: status==="passed"
+? "Automated evaluation completed successfully."
+: status==="failed"
+? "Automated evaluation completed and the solution did not pass."
+: status==="error"
+? "The submission could not be evaluated."
+: "The submission has an unrecognized evaluation state."
+}
+</div>
+</div>`;
+}
+
+async function loadSubmissionHistory(challengeId){
+const target=document.getElementById("submission-history");
+
+if(!target||!challengeId) return;
+
+target.innerHTML=CodemUI.loading("Loading submission history...");
+
+try{
+const result=await CodemAPI.get(
+`/submissions?challengeId=${encodeURIComponent(challengeId)}`
+);
+
+const submissions=Array.isArray(result)
+?result
+:result?.data||result?.submissions||[];
+
+if(!submissions.length){
+target.innerHTML=CodemUI.empty("No previous submissions for this challenge.");
+return;
+}
+
+target.innerHTML=`
+<div class="submission-history-card">
+<div class="submission-history-header">
+<div>
+<span class="card-label">HISTORY</span>
+<h3>Your Submissions</h3>
+</div>
+
+<span class="submission-history-count">
+${submissions.length} submission${submissions.length===1?"":"s"}
+</span>
+</div>
+
+<div class="submission-history-list">
+${submissions.map(submission=>`
+<div class="submission-history-item">
+<div class="submission-history-main">
+<strong>${CodemUI.escape(formatSubmissionStatus(submission.status||"unknown"))}</strong>
+<span>${CodemUI.escape(submission.language||"Unknown language")}</span>
+<span>${CodemUI.escape(formatSubmissionDate(submission.submitted_at))}</span>
+</div>
+
+<div class="submission-history-score">
+${
+submission.score===null||submission.score===undefined
+?"Pending"
+:CodemUI.escape(String(submission.score))
+}
+</div>
+</div>
+`).join("")}
+</div>
+</div>`;
+}catch(e){
+target.innerHTML=CodemUI.error(e.message);
+}
+}
+
+function renderSubmissionHistoryContainers(){
+const workspace=document.getElementById("challenge-workspace");
+
+if(!workspace) return;
+
+if(!document.getElementById("submission-result")){
+const result=document.createElement("div");
+result.id="submission-result";
+workspace.appendChild(result);
+}
+
+if(!document.getElementById("submission-history")){
+const history=document.createElement("div");
+history.id="submission-history";
+workspace.appendChild(history);
+}
 }
 
 async function submitChallenge(event,challengeId){
@@ -568,7 +757,7 @@ const button=event.target.querySelector("button[type=submit]");
 if(button) button.disabled=true;
 
 try{
-await CodemAPI.post(
+const result=await CodemAPI.post(
 `/submissions/challenge/${encodeURIComponent(challengeId)}`,
 {
 code,
@@ -576,8 +765,12 @@ language
 }
 );
 
-CodemUI.toast("Solution submitted successfully");
-document.getElementById("challenge-workspace")?.remove();
+const submission=result?.data||result;
+
+renderSubmissionResult(submission);
+await loadSubmissionHistory(challengeId);
+
+CodemUI.toast("Solution submitted and queued for evaluation");
 }catch(e){
 CodemUI.toast(e.message,"error");
 }finally{

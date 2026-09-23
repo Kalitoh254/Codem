@@ -2251,3 +2251,145 @@ body {
   }
 }
 
+
+/* Practice submission results and history */
+
+.submission-result-card,
+.submission-history-card {
+    margin-top: 1.25rem;
+    padding: 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: var(--surface-color);
+}
+
+.submission-result-header,
+.submission-history-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.submission-result-header h3,
+.submission-history-header h3 {
+    margin: .25rem 0 0;
+}
+
+.submission-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: .35rem .7rem;
+    border-radius: 999px;
+    font-size: .8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.submission-status-queued,
+.submission-status-running,
+.submission-status-unknown {
+    background: var(--surface-muted);
+    color: var(--text-secondary);
+}
+
+.submission-status-passed {
+    background: var(--surface-muted);
+    color: var(--text-primary);
+}
+
+.submission-status-failed,
+.submission-status-error {
+    background: var(--surface-muted);
+    color: var(--text-primary);
+}
+
+.submission-result-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: .75rem;
+}
+
+.submission-result-grid > div {
+    min-width: 0;
+    padding: .85rem;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.submission-metric-label {
+    display: block;
+    margin-bottom: .35rem;
+    font-size: .75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.submission-result-message {
+    margin-top: 1rem;
+    padding: .9rem 1rem;
+    border-radius: 12px;
+    background: var(--surface-muted);
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.submission-history-count {
+    color: var(--text-secondary);
+    font-size: .85rem;
+}
+
+.submission-history-list {
+    display: grid;
+    gap: .65rem;
+}
+
+.submission-history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .85rem 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.submission-history-main {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .75rem;
+    min-width: 0;
+}
+
+.submission-history-main span {
+    color: var(--text-secondary);
+    font-size: .85rem;
+}
+
+.submission-history-score {
+    flex: 0 0 auto;
+    font-weight: 700;
+}
+
+@media (max-width: 900px) {
+    .submission-result-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .submission-result-header,
+    .submission-history-header,
+    .submission-history-item {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .submission-result-grid {
+        grid-template-columns: 1fr;
+    }
+}
