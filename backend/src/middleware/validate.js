@@ -67,6 +67,22 @@ export function validateBody(rules) {
 
                     throw error;
                 }
+
+                if (
+                    value !== undefined &&
+                    value !== null &&
+                    Array.isArray(rule.enum) &&
+                    !rule.enum.includes(value)
+                ) {
+                    const error = new Error(
+                        `${field} must be one of: ${rule.enum.join(", ")}.`
+                    );
+
+                    error.status = 400;
+                    error.code = "VALIDATION_ERROR";
+
+                    throw error;
+                }
             }
 
             next();

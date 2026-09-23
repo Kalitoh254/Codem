@@ -31,6 +31,27 @@ function assertChallenge(id) {
     return challenge;
 }
 
+const ALLOWED_DIFFICULTIES = new Set([
+    "beginner",
+    "intermediate",
+    "advanced"
+]);
+
+const ALLOWED_STATUSES = new Set([
+    "draft",
+    "published",
+    "archived"
+]);
+
+function assertAllowed(value, allowed, field) {
+    if (!allowed.has(value)) {
+        throw Object.assign(
+            new Error(`${field} is invalid.`),
+            { status: 400, code: `INVALID_CHALLENGE_${field.toUpperCase()}` }
+        );
+    }
+}
+
 export function getChallenges(options = {}) {
     const page = Math.max(Number.parseInt(options.page, 10) || 1, 1);
     const limit = Math.min(
@@ -91,19 +112,25 @@ export function createNewChallenge(data, createdBy) {
         );
     }
 
+    const difficulty = data.difficulty || "beginner";
+    const status = data.status || "draft";
+
+    assertAllowed(difficulty, ALLOWED_DIFFICULTIES, "difficulty");
+    assertAllowed(status, ALLOWED_STATUSES, "status");
+
     return createChallenge({
         id: crypto.randomUUID(),
         title,
         slug,
         description: data.description?.trim() || "",
-        difficulty: data.difficulty || "beginner",
+        difficulty,
         language: data.language || null,
         instructions: data.instructions?.trim() || null,
         starterCode: data.starterCode || null,
         solutionCode: data.solutionCode || null,
         testCases: data.testCases || null,
         createdBy,
-        status: data.status || "draft"
+        status
     });
 }
 
