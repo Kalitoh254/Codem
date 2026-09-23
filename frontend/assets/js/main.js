@@ -4,19 +4,314 @@ const pages={
 
 "/":()=>`
 <section class="hero">
-<div class="hero-content">
-<span class="eyebrow">THE DEVELOPER PLATFORM</span>
-<h1>Build your <span>next idea.</span></h1>
-<p class="hero-description">
-Learn, build, practice and connect inside Codem.
-</p>
-<div class="hero-actions">
-<button class="btn btn-primary btn-large" onclick="location.hash='#/register'">Start Coding</button>
-<button class="btn btn-secondary btn-large" onclick="location.hash='#/learning'">Explore</button>
-</div>
-</div>
-</section>`,
+  <div class="hero-content">
+    <span class="eyebrow">THE DEVELOPER PLATFORM</span>
 
+    <h1>Build your <span>next idea.</span></h1>
+
+    <p class="hero-description">
+      Learn programming, sharpen your skills, build real projects and connect
+      with developers through one connected platform.
+    </p>
+
+    <div class="hero-actions">
+      <button class="btn btn-primary btn-large"
+        onclick="location.hash='#/register'">
+        Start Coding
+      </button>
+
+      <button class="btn btn-secondary btn-large"
+        onclick="location.hash='#/learning'">
+        Explore Platform
+      </button>
+    </div>
+
+    <div class="hero-points">
+      <span>Learn</span>
+      <span>Practice</span>
+      <span>Build</span>
+      <span>Connect</span>
+    </div>
+  </div>
+
+  <div class="code-preview">
+    <div class="editor">
+      <div class="editor-header">
+        <div class="window-controls">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        <span class="file-name">codem.js</span>
+      </div>
+
+      <div class="editor-body">
+        <pre><code><span class="keyword">const</span> codem = {
+  learn: <span class="keyword">true</span>,
+  practice: <span class="keyword">true</span>,
+  build: <span class="keyword">true</span>,
+  community: <span class="keyword">true</span>
+};
+
+<span class="keyword">export default</span> codem;</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="platform">
+  <div class="section-heading">
+    <span class="eyebrow">ONE PLATFORM</span>
+
+    <h2>Everything you need to keep building.</h2>
+
+    <p>
+      Codem brings learning, practice, projects and developer community
+      together in one environment.
+    </p>
+  </div>
+
+  <div class="feature-grid">
+    <article class="feature-card">
+      <div class="feature-icon">&lt;/&gt;</div>
+      <h3>Learn</h3>
+      <p>
+        Follow structured learning paths designed to help you develop
+        practical programming skills.
+      </p>
+    </article>
+
+    <article class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <h3>Practice</h3>
+      <p>
+        Solve programming challenges and turn concepts into usable
+        problem-solving skills.
+      </p>
+    </article>
+
+    <article class="feature-card">
+      <div class="feature-icon">◎</div>
+      <h3>Build</h3>
+      <p>
+        Create and manage projects that demonstrate what you can actually
+        build.
+      </p>
+    </article>
+
+    <article class="feature-card">
+      <div class="feature-icon">◇</div>
+      <h3>Connect</h3>
+      <p>
+        Share ideas, ask questions and participate in a community built
+        around developers.
+      </p>
+    </article>
+  </div>
+</section>
+
+<section class="community-preview">
+  <div>
+    <span class="eyebrow">LEARN BY BUILDING</span>
+
+    <h2>Turn knowledge into something real.</h2>
+
+    <p>
+      Learning becomes more useful when you can apply it. Codem connects
+      structured learning with practical challenges and project work so
+      developers can move from understanding concepts to building with them.
+    </p>
+
+    <div class="hero-actions">
+      <button class="btn btn-primary"
+        onclick="location.hash='#/learning'">
+        Explore Learning
+      </button>
+
+      <button class="btn btn-secondary"
+        onclick="location.hash='#/practice'">
+        View Challenges
+      </button>
+    </div>
+  </div>
+
+  <div class="community-card">
+    <div class="discussion">
+      <div class="avatar">&lt;/&gt;</div>
+
+      <div>
+        <strong>Learning</strong>
+        <p>Build a stronger foundation through structured learning paths.</p>
+        <span>Learn at your own pace</span>
+      </div>
+    </div>
+
+    <div class="discussion">
+      <div class="avatar">⚡</div>
+
+      <div>
+        <strong>Practice</strong>
+        <p>Work through programming problems and develop practical skills.</p>
+        <span>Challenge yourself</span>
+      </div>
+    </div>
+
+    <div class="discussion">
+      <div class="avatar">◎</div>
+
+      <div>
+        <strong>Projects</strong>
+        <p>Turn your ideas into software you can build, manage and share.</p>
+        <span>Build something real</span>
+      </div>
+    </div>
+
+    <div class="discussion">
+      <div class="avatar">◇</div>
+
+      <div>
+        <strong>Community</strong>
+        <p>Exchange knowledge with developers working through similar problems.</p>
+        <span>Build together</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="platform">
+  <div class="section-heading">
+    <span class="eyebrow">THE CODEM WORKFLOW</span>
+
+    <h2>Learn. Practice. Build. Share.</h2>
+
+    <p>
+      A connected development journey that gives you somewhere to go after
+      finishing the tutorial.
+    </p>
+  </div>
+
+  <div class="feature-grid">
+    <article class="feature-card">
+      <div class="feature-icon">01</div>
+      <h3>Learn</h3>
+      <p>Develop your understanding through structured learning experiences.</p>
+    </article>
+
+    <article class="feature-card">
+      <div class="feature-icon">02</div>
+      <h3>Practice</h3>
+      <p>Reinforce concepts by solving practical programming challenges.</p>
+    </article>
+
+    <article class="feature-card">
+      <div class="feature-icon">03</div>
+      <h3>Build</h3>
+      <p>Apply your skills to projects and create work that represents you.</p>
+    </article>
+
+    <article class="feature-card">
+      <div class="feature-icon">04</div>
+      <h3>Share</h3>
+      <p>Connect with developers, exchange ideas and contribute to the community.</p>
+    </article>
+  </div>
+</section>
+
+<section class="community-preview">
+  <div>
+    <span class="eyebrow">DEVELOPER NETWORK</span>
+
+    <h2>Build in public. Learn from people.</h2>
+
+    <p>
+      Codem gives developers a place to discover other developers, explore
+      profiles, discuss technical problems and share what they are building.
+    </p>
+
+    <div class="hero-actions">
+      <button class="btn btn-primary"
+        onclick="location.hash='#/register'">
+        Join Codem
+      </button>
+
+      <button class="btn btn-secondary"
+        onclick="location.hash='#/developers'">
+        Discover Developers
+      </button>
+    </div>
+  </div>
+
+  <div class="community-card">
+    <div class="discussion">
+      <div class="avatar">&lt;/&gt;</div>
+
+      <div>
+        <strong>Developer Profiles</strong>
+        <p>Create a developer identity that represents your skills and work.</p>
+        <span>Build your profile</span>
+      </div>
+    </div>
+
+    <div class="discussion">
+      <div class="avatar">◇</div>
+
+      <div>
+        <strong>Community Discussions</strong>
+        <p>Ask questions, exchange solutions and learn from other developers.</p>
+        <span>Share knowledge</span>
+      </div>
+    </div>
+
+    <div class="discussion">
+      <div class="avatar">◎</div>
+
+      <div>
+        <strong>Project Work</strong>
+        <p>Show what you are building and keep your development work organized.</p>
+        <span>Build your portfolio</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="platform">
+  <div class="section-heading">
+    <span class="eyebrow">START BUILDING</span>
+
+    <h2>Your next project starts here.</h2>
+
+    <p>
+      Create your Codem account and begin exploring the platform.
+    </p>
+  </div>
+
+  <div class="hero-actions">
+    <button class="btn btn-primary btn-large"
+      onclick="location.hash='#/register'">
+      Create Your Account
+    </button>
+
+    <button class="btn btn-secondary btn-large"
+      onclick="location.hash='#/login'">
+      Log In
+    </button>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div>
+    <strong>Codem International</strong>
+    <span> · Powered by Aureon Systems</span>
+  </div>
+
+  <div>
+    <a href="#/privacy">Privacy Policy</a>
+    <span> · </span>
+    <a href="#/terms">Terms of Service</a>
+  </div>
+</footer>
+`,
 "/login":()=>`
 <section class="auth-page">
 <div class="auth-card">
