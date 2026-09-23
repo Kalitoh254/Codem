@@ -19,7 +19,7 @@ export const authRateLimit = rateLimit({
             error: {
                 code: "RATE_LIMIT_EXCEEDED",
                 message:
-                    "Too many authentication requests. Please try again later."
+                    "Too many authentication requests. Please wait before trying again."
             }
         });
     }
