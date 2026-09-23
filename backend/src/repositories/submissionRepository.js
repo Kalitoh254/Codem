@@ -24,7 +24,7 @@ export function createSubmission(data) {
         data.language,
         data.sourceCode,
         data.status,
-        data.score ?? 0,
+        data.score ?? null,
         data.executionTimeMs ?? null,
         data.memoryUsed ?? null
     );
