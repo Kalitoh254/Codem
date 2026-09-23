@@ -1511,42 +1511,116 @@ target.innerHTML=CodemUI.error(e.message);
 }
 }
 
+let codemCourses = [];
+
 async function loadCourses(){
 const target=document.getElementById("learning-content");
+const count=document.getElementById("course-count");
 
 if(!target) return;
 
 try{
 const result=await CodemAPI.get("/courses");
 
-const courses=Array.isArray(result)
+codemCourses=Array.isArray(result)
 ?result
 :result?.data||result?.courses||[];
 
+if(count){
+count.textContent=`${codemCourses.length} course${codemCourses.length===1?"":"s"} available`;
+}
+
+renderCourses(codemCourses);
+
+}catch(e){
+if(count) count.textContent="Unable to load courses";
+target.innerHTML=CodemUI.error(e.message);
+}
+}
+
+function filterCourses(query=""){
+const normalized=query.trim().toLowerCase();
+
+const filtered=!normalized
+?codemCourses
+:codemCourses.filter(course=>{
+const title=String(course.title||course.name||"").toLowerCase();
+const description=String(course.description||"").toLowerCase();
+const slug=String(course.slug||"").toLowerCase();
+
+return title.includes(normalized)
+||description.includes(normalized)
+||slug.includes(normalized);
+});
+
+renderCourses(filtered);
+}
+
+function renderCourses(courses=[]){
+const target=document.getElementById("learning-content");
+
+if(!target) return;
+
 if(!courses.length){
-target.innerHTML=CodemUI.empty("No courses are available yet.");
+target.innerHTML=CodemUI.empty(
+codemCourses.length
+?"No courses match your search."
+:"No courses are available yet."
+);
 return;
 }
 
 target.innerHTML=`
-<div class="feature-grid">
-${courses.map(course=>`
-<article class="feature-card">
+<div class="course-grid">
+${courses.map(course=>{
+const id=course.id||course.course_id||"";
+const title=course.title||course.name||"Untitled Course";
+const description=course.description||"Explore this learning path.";
+const level=course.level||course.difficulty||"All levels";
+const category=course.category||course.topic||"Development";
+const lessons=course.lesson_count??course.lessons_count??course.lessons?.length;
+
+return `
+<article class="course-card">
+
+<div class="course-card-top">
 <span class="card-label">COURSE</span>
-<h3>${CodemUI.escape(course.title||course.name||"Untitled Course")}</h3>
-<p>${CodemUI.escape(course.description||"Explore this learning path.")}</p>
+<span class="course-level">${CodemUI.escape(level)}</span>
+</div>
+
+<div class="course-card-body">
+
+<span class="course-category">
+${CodemUI.escape(category)}
+</span>
+
+<h3>${CodemUI.escape(title)}</h3>
+
+<p>
+${CodemUI.escape(description)}
+</p>
+
+${lessons!=null?`
+<div class="course-meta">
+<span>${CodemUI.escape(String(lessons))} lesson${Number(lessons)===1?"":"s"}</span>
+</div>
+`:""}
+
+</div>
+
 <div class="card-actions">
-<button class="btn btn-primary"
-onclick="openCourse('${CodemUI.escape(course.id||course.course_id||"")}')">
+
+<button
+class="btn btn-primary"
+onclick="openCourse('${CodemUI.escape(id)}')">
 Open Course
 </button>
+
 </div>
-</article>
-`).join("")}
+
+</article>`;
+}).join("")}
 </div>`;
-}catch(e){
-target.innerHTML=CodemUI.error(e.message);
-}
 }
 
 async function enrollCourse(courseId){
