@@ -64,6 +64,7 @@ export function listUserSubmissions(userId, challengeId) {
                 s.language,
                 s.status,
                 s.score,
+                s.feedback,
                 s.execution_time_ms,
                 s.memory_used,
                 s.submitted_at,
