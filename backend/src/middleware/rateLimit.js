@@ -1,11 +1,13 @@
-import rateLimit from "express-rate-limit";
+import rateLimit, {
+    ipKeyGenerator
+} from "express-rate-limit";
 
 function userKeyGenerator(req) {
     if (req.user?.id) {
         return `user:${req.user.id}`;
     }
 
-    return `ip:${req.ip}`;
+    return `ip:${ipKeyGenerator(req.ip)}`;
 }
 
 export const authRateLimit = rateLimit({
@@ -37,7 +39,7 @@ export const submissionRateLimit = rateLimit({
             error: {
                 code: "SUBMISSION_RATE_LIMIT_EXCEEDED",
                 message:
-                    "Too many submissions. Please wait before submitting again."
+                    "Too many submissions. Please wait before trying again."
             }
         });
     }
