@@ -299,18 +299,7 @@ const pages={
   </div>
 </section>
 
-<footer class="site-footer">
-  <div>
-    <strong>Codem International</strong>
-    <span> · Powered by Aureon Systems</span>
-  </div>
 
-  <div>
-    <a href="#/privacy">Privacy Policy</a>
-    <span> · </span>
-    <a href="#/terms">Terms of Service</a>
-  </div>
-</footer>
 `,
 "/login":()=>`
 <section class="auth-page">
@@ -2272,6 +2261,793 @@ ${items.map(i=>`
 </section>`;
 }
 
+
+/* ============================================================
+   CODEM COOKIE / BROWSER STORAGE PREFERENCES
+   ============================================================ */
+
+const CODEM_COOKIE_KEY = "codem_cookie_preferences_v1";
+
+const CodemCookies = {
+  defaults: {
+    essential: true,
+    preferences: false,
+    analytics: false
+  },
+
+  get() {
+    try {
+      const stored = JSON.parse(
+        localStorage.getItem(CODEM_COOKIE_KEY) || "null"
+      );
+
+      return {
+        ...this.defaults,
+        ...(stored || {}),
+        essential: true
+      };
+    } catch {
+      return { ...this.defaults };
+    }
+  },
+
+  save(values = {}) {
+    const preferences = {
+      ...this.defaults,
+      ...values,
+      essential: true
+    };
+
+    localStorage.setItem(
+      CODEM_COOKIE_KEY,
+      JSON.stringify(preferences)
+    );
+
+    this.close();
+    return preferences;
+  },
+
+  hasDecision() {
+    return !!localStorage.getItem(CODEM_COOKIE_KEY);
+  },
+
+  open() {
+    const modal = document.getElementById("codem-cookie-modal");
+    if (!modal) return;
+
+    const current = this.get();
+
+    const preferences = document.getElementById("cookie-preferences");
+    const analytics = document.getElementById("cookie-analytics");
+
+    if (preferences) preferences.checked = !!current.preferences;
+    if (analytics) analytics.checked = !!current.analytics;
+
+    modal.hidden = false;
+    document.body.classList.add("cookie-modal-open");
+  },
+
+  close() {
+    const modal = document.getElementById("codem-cookie-modal");
+
+    if (modal) modal.hidden = true;
+
+    document.body.classList.remove("cookie-modal-open");
+  },
+
+  showBanner() {
+    if (this.hasDecision()) return;
+
+    const banner = document.getElementById("codem-cookie-banner");
+
+    if (banner) banner.hidden = false;
+  },
+
+  hideBanner() {
+    const banner = document.getElementById("codem-cookie-banner");
+
+    if (banner) banner.hidden = true;
+  },
+
+  acceptAll() {
+    this.save({
+      preferences: true,
+      analytics: true
+    });
+
+    this.hideBanner();
+  },
+
+  essentialOnly() {
+    this.save({
+      preferences: false,
+      analytics: false
+    });
+
+    this.hideBanner();
+  },
+
+  saveFromModal() {
+    const preferences =
+      document.getElementById("cookie-preferences")?.checked || false;
+
+    const analytics =
+      document.getElementById("cookie-analytics")?.checked || false;
+
+    this.save({
+      preferences,
+      analytics
+    });
+
+    this.hideBanner();
+  }
+};
+
+window.CodemCookies = CodemCookies;
+
+document.addEventListener("click", (event) => {
+  const target = event.target.closest("[data-cookie-preferences]");
+
+  if (target) {
+    event.preventDefault();
+    CodemCookies.open();
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  CodemCookies.showBanner();
+});
+
+
+/* ============================================================
+   LEGAL + ADMIN PAGE DEFINITIONS
+   ============================================================ */
+
+pages["/privacy"] = () => `
+  <section class="legal-page">
+    <div class="legal-header">
+      <span class="eyebrow">LEGAL</span>
+      <h1>Privacy Policy</h1>
+      <p>How Codem handles information used to operate the platform.</p>
+    </div>
+
+    <article class="legal-card">
+      <h2>Information we use</h2>
+      <p>
+        Codem may process information required to create accounts,
+        authenticate users, provide learning features, operate projects,
+        support community functionality, and maintain platform security.
+      </p>
+
+      <h2>Account information</h2>
+      <p>
+        Account information may include your name, email address, profile
+        information, account role, and other information submitted through
+        Codem.
+      </p>
+
+      <h2>Authentication and browser storage</h2>
+      <p>
+        Codem currently uses browser storage for authentication state and
+        selected application preferences. Essential storage is required for
+        the platform to function.
+      </p>
+
+      <h2>Security</h2>
+      <p>
+        Administrative actions and protected API operations are enforced by
+        the Codem backend. Browser interfaces do not replace server-side
+        authorization.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Privacy-related requests should be directed through the official
+        Codem International contact channels.
+      </p>
+    </article>
+  </section>
+`;
+
+pages["/terms"] = () => `
+  <section class="legal-page">
+    <div class="legal-header">
+      <span class="eyebrow">LEGAL</span>
+      <h1>Terms of Service</h1>
+      <p>Rules governing use of the Codem platform.</p>
+    </div>
+
+    <article class="legal-card">
+      <h2>Use of Codem</h2>
+      <p>
+        You agree to use Codem lawfully and in a manner that does not
+        interfere with the operation, security, or availability of the
+        platform.
+      </p>
+
+      <h2>Accounts</h2>
+      <p>
+        Users are responsible for maintaining the security of their account
+        credentials and for activity performed through their account.
+      </p>
+
+      <h2>Content</h2>
+      <p>
+        Users remain responsible for content they submit. Content must not
+        violate applicable law or the rights of other people or organizations.
+      </p>
+
+      <h2>Platform availability</h2>
+      <p>
+        Features may change as Codem develops. Maintenance, security work,
+        infrastructure issues, or other operational circumstances may affect
+        availability.
+      </p>
+
+      <h2>Enforcement</h2>
+      <p>
+        Codem may restrict or suspend accounts when required to protect the
+        platform, its users, or its services, subject to applicable law.
+      </p>
+    </article>
+  </section>
+`;
+
+pages["/cookies"] = () => `
+  <section class="legal-page">
+    <div class="legal-header">
+      <span class="eyebrow">LEGAL</span>
+      <h1>Cookie Policy</h1>
+      <p>Information about cookies and browser storage used by Codem.</p>
+    </div>
+
+    <article class="legal-card">
+      <h2>Essential storage</h2>
+      <p>
+        Essential browser storage supports authentication and core platform
+        functionality. It cannot be disabled through the Codem preference
+        controls while using features that require it.
+      </p>
+
+      <h2>Preferences</h2>
+      <p>
+        Preference storage may remember choices made within the application,
+        such as interface or cookie preference settings.
+      </p>
+
+      <h2>Analytics</h2>
+      <p>
+        Optional analytics storage is disabled by default in the Codem
+        preference controls unless the user enables it.
+      </p>
+
+      <h2>Changing preferences</h2>
+      <p>
+        You can reopen Cookie Preferences from the footer on supported Codem
+        pages.
+      </p>
+    </article>
+  </section>
+`;
+
+pages["/admin"] = () => `
+  <section class="admin-page">
+    <div class="admin-header">
+      <div>
+        <span class="eyebrow">ADMINISTRATION</span>
+        <h1>User Management</h1>
+        <p>Manage Codem accounts and administrative access.</p>
+      </div>
+    </div>
+
+    <div class="admin-toolbar">
+      <input
+        id="admin-user-search"
+        class="admin-search"
+        type="search"
+        placeholder="Search users..."
+        autocomplete="off"
+      />
+
+      <select id="admin-status-filter" class="admin-filter">
+        <option value="">All statuses</option>
+        <option value="active">Active</option>
+        <option value="suspended">Suspended</option>
+      </select>
+
+      <select id="admin-role-filter" class="admin-filter">
+        <option value="">All roles</option>
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+      </select>
+
+      <button class="btn btn-primary" id="admin-refresh-users">
+        Refresh
+      </button>
+    </div>
+
+    <div class="admin-table-card">
+      <div id="admin-users-state" class="admin-state">
+        Loading users...
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-users-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-users-body"></tbody>
+        </table>
+      </div>
+
+      <div class="admin-pagination">
+        <button class="btn btn-secondary" id="admin-prev-page">
+          Previous
+        </button>
+
+        <span id="admin-page-label">Page 1</span>
+
+        <button class="btn btn-secondary" id="admin-next-page">
+          Next
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div id="admin-user-modal" class="admin-modal" hidden>
+    <div class="admin-modal-backdrop" data-admin-close></div>
+
+    <div
+      class="admin-modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="admin-modal-title"
+    >
+      <button
+        class="admin-modal-close"
+        type="button"
+        data-admin-close
+        aria-label="Close"
+      >
+        ×
+      </button>
+
+      <div id="admin-modal-content"></div>
+    </div>
+  </div>
+`;
+
+
+
+/* ============================================================
+   ADMIN USER MANAGEMENT
+   ============================================================ */
+
+const CodemAdmin = {
+  page: 1,
+  limit: 20,
+  search: "",
+  status: "",
+  role: "",
+  total: 0,
+
+  currentUser() {
+    return CodemAuth.user() || {};
+  },
+
+  isAdmin() {
+    return String(this.currentUser().role || "").toLowerCase() === "admin";
+  },
+
+  async load() {
+    const state = document.getElementById("admin-users-state");
+    const body = document.getElementById("admin-users-body");
+
+    if (!state || !body) return;
+
+    if (!this.isAdmin()) {
+      state.textContent = "Administrator access required.";
+      body.innerHTML = "";
+      return;
+    }
+
+    state.textContent = "Loading users...";
+    body.innerHTML = "";
+
+    try {
+      const params = new URLSearchParams({
+        page: String(this.page),
+        limit: String(this.limit)
+      });
+
+      if (this.search) params.set("search", this.search);
+      if (this.status) params.set("status", this.status);
+      if (this.role) params.set("role", this.role);
+
+      const data = await CodemAPI.get(
+        `/admin/users?${params.toString()}`
+      );
+
+      const users =
+        Array.isArray(data) ? data :
+        Array.isArray(data?.users) ? data.users :
+        Array.isArray(data?.data) ? data.data :
+        Array.isArray(data?.data?.users) ? data.data.users :
+        [];
+
+      this.total =
+        Number(
+          data?.pagination?.total ??
+          data?.meta?.total ??
+          data?.total ??
+          users.length
+        );
+
+      this.render(users);
+    } catch (error) {
+      state.textContent =
+        error?.message || "Unable to load administrator users.";
+    }
+  },
+
+  render(users) {
+    const state = document.getElementById("admin-users-state");
+    const body = document.getElementById("admin-users-body");
+    const label = document.getElementById("admin-page-label");
+
+    if (!body) return;
+
+    if (!users.length) {
+      if (state) state.textContent = "No users found.";
+      body.innerHTML = "";
+    } else {
+      if (state) state.textContent = "";
+
+      body.innerHTML = users.map((user) => {
+        const id = CodemUI.escape(String(user.id ?? ""));
+        const name = CodemUI.escape(
+          user.name ||
+          user.fullName ||
+          user.username ||
+          "Unnamed user"
+        );
+        const email = CodemUI.escape(user.email || "No email");
+        const role = CodemUI.escape(user.role || "user");
+        const status = CodemUI.escape(user.status || "active");
+
+        const created = user.createdAt
+          ? new Date(user.createdAt).toLocaleDateString()
+          : "—";
+
+        return `
+          <tr>
+            <td>
+              <div class="admin-user-cell">
+                <span class="admin-avatar">
+                  ${CodemUI.escape(CodemUI.initials(
+                    user.name ||
+                    user.fullName ||
+                    user.username ||
+                    "U"
+                  ))}
+                </span>
+                <strong>${name}</strong>
+              </div>
+            </td>
+
+            <td>${email}</td>
+
+            <td>
+              <span class="admin-badge admin-role-${role}">
+                ${role}
+              </span>
+            </td>
+
+            <td>
+              <span class="admin-badge admin-status-${status}">
+                ${status}
+              </span>
+            </td>
+
+            <td>${CodemUI.escape(created)}</td>
+
+            <td>
+              <div class="admin-actions">
+                <button
+                  class="btn btn-small btn-secondary"
+                  data-admin-action="view"
+                  data-user-id="${id}"
+                >
+                  View
+                </button>
+
+                <button
+                  class="btn btn-small btn-secondary"
+                  data-admin-action="role"
+                  data-user-id="${id}"
+                >
+                  Role
+                </button>
+
+                <button
+                  class="btn btn-small btn-secondary"
+                  data-admin-action="status"
+                  data-user-id="${id}"
+                >
+                  Status
+                </button>
+
+                <button
+                  class="btn btn-small btn-danger"
+                  data-admin-action="revoke"
+                  data-user-id="${id}"
+                >
+                  Revoke
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    if (label) {
+      const totalPages = Math.max(
+        1,
+        Math.ceil(this.total / this.limit)
+      );
+
+      label.textContent =
+        `Page ${this.page} of ${totalPages}`;
+    }
+  },
+
+  async view(id) {
+    try {
+      const data = await CodemAPI.get(
+        `/admin/users/${encodeURIComponent(id)}`
+      );
+
+      const user = data?.user || data?.data || data;
+
+      this.openModal(`
+        <span class="eyebrow">USER</span>
+        <h2 id="admin-modal-title">
+          ${CodemUI.escape(
+            user?.name ||
+            user?.fullName ||
+            user?.username ||
+            "User"
+          )}
+        </h2>
+
+        <div class="admin-detail-grid">
+          <div>
+            <span>Email</span>
+            <strong>${CodemUI.escape(user?.email || "—")}</strong>
+          </div>
+
+          <div>
+            <span>Role</span>
+            <strong>${CodemUI.escape(user?.role || "user")}</strong>
+          </div>
+
+          <div>
+            <span>Status</span>
+            <strong>${CodemUI.escape(user?.status || "active")}</strong>
+          </div>
+
+          <div>
+            <span>Created</span>
+            <strong>${
+              user?.createdAt
+                ? CodemUI.escape(
+                    new Date(user.createdAt).toLocaleString()
+                  )
+                : "—"
+            }</strong>
+          </div>
+        </div>
+      `);
+    } catch (error) {
+      this.openModal(`
+        <h2 id="admin-modal-title">Unable to load user</h2>
+        <p>${CodemUI.escape(error?.message || "Request failed.")}</p>
+      `);
+    }
+  },
+
+  async changeRole(id) {
+    const value = prompt(
+      "Enter the new role: user or admin"
+    );
+
+    if (!value) return;
+
+    const role = value.trim().toLowerCase();
+
+    if (!["user", "admin"].includes(role)) {
+      alert("Role must be user or admin.");
+      return;
+    }
+
+    try {
+      await CodemAPI.patch(
+        `/admin/users/${encodeURIComponent(id)}/role`,
+        { role }
+      );
+
+      await this.load();
+    } catch (error) {
+      alert(error?.message || "Unable to change role.");
+    }
+  },
+
+  async changeStatus(id) {
+    const value = prompt(
+      "Enter the new status: active or suspended"
+    );
+
+    if (!value) return;
+
+    const status = value.trim().toLowerCase();
+
+    if (!["active", "suspended"].includes(status)) {
+      alert("Status must be active or suspended.");
+      return;
+    }
+
+    try {
+      await CodemAPI.patch(
+        `/admin/users/${encodeURIComponent(id)}/status`,
+        { status }
+      );
+
+      await this.load();
+    } catch (error) {
+      alert(error?.message || "Unable to change status.");
+    }
+  },
+
+  async revoke(id) {
+    if (!confirm(
+      "Revoke all active sessions for this user?"
+    )) return;
+
+    try {
+      await CodemAPI.post(
+        `/admin/users/${encodeURIComponent(id)}/revoke-sessions`,
+        {}
+      );
+
+      alert("User sessions revoked.");
+    } catch (error) {
+      alert(error?.message || "Unable to revoke sessions.");
+    }
+  },
+
+  openModal(html) {
+    const modal = document.getElementById("admin-user-modal");
+    const content = document.getElementById("admin-modal-content");
+
+    if (!modal || !content) return;
+
+    content.innerHTML = html;
+    modal.hidden = false;
+    document.body.classList.add("admin-modal-open");
+  },
+
+  closeModal() {
+    const modal = document.getElementById("admin-user-modal");
+
+    if (modal) modal.hidden = true;
+
+    document.body.classList.remove("admin-modal-open");
+  }
+};
+
+window.CodemAdmin = CodemAdmin;
+
+document.addEventListener("click", async (event) => {
+  const close = event.target.closest("[data-admin-close]");
+
+  if (close) {
+    CodemAdmin.closeModal();
+    return;
+  }
+
+  const action = event.target.closest("[data-admin-action]");
+
+  if (!action) return;
+
+  const id = action.dataset.userId;
+  const type = action.dataset.adminAction;
+
+  if (!id) return;
+
+  if (type === "view") await CodemAdmin.view(id);
+  if (type === "role") await CodemAdmin.changeRole(id);
+  if (type === "status") await CodemAdmin.changeStatus(id);
+  if (type === "revoke") await CodemAdmin.revoke(id);
+});
+
+document.addEventListener("click", (event) => {
+  if (event.target.id === "admin-refresh-users") {
+    CodemAdmin.load();
+  }
+
+  if (event.target.id === "admin-prev-page") {
+    if (CodemAdmin.page > 1) {
+      CodemAdmin.page--;
+      CodemAdmin.load();
+    }
+  }
+
+  if (event.target.id === "admin-next-page") {
+    const totalPages = Math.max(
+      1,
+      Math.ceil(CodemAdmin.total / CodemAdmin.limit)
+    );
+
+    if (CodemAdmin.page < totalPages) {
+      CodemAdmin.page++;
+      CodemAdmin.load();
+    }
+  }
+});
+
+document.addEventListener("input", (event) => {
+  if (event.target.id !== "admin-user-search") return;
+
+  clearTimeout(window.__codemAdminSearchTimer);
+
+  window.__codemAdminSearchTimer = setTimeout(() => {
+    CodemAdmin.search = event.target.value.trim();
+    CodemAdmin.page = 1;
+    CodemAdmin.load();
+  }, 350);
+});
+
+document.addEventListener("change", (event) => {
+  if (event.target.id === "admin-status-filter") {
+    CodemAdmin.status = event.target.value;
+    CodemAdmin.page = 1;
+    CodemAdmin.load();
+  }
+
+  if (event.target.id === "admin-role-filter") {
+    CodemAdmin.role = event.target.value;
+    CodemAdmin.page = 1;
+    CodemAdmin.load();
+  }
+});
+
+
+function renderSiteFooter(){
+return `
+<footer class="site-footer">
+  <div class="site-footer-brand">
+    <strong>© 2026 Codem International</strong>
+    <span>Powered by Aureon Systems</span>
+  </div>
+
+  <nav class="site-footer-links" aria-label="Legal">
+    <a href="#/privacy">Privacy Policy</a>
+    <a href="#/terms">Terms of Service</a>
+    <a href="#/cookies">Cookie Policy</a>
+    <button type="button" data-cookie-preferences>Cookie Preferences</button>
+  </nav>
+</footer>
+`;
+}
+
 function normalizeRoute(){
 const hash=location.hash||"#/";
 return hash.replace(/^#/, "")||"/";
@@ -2287,7 +3063,8 @@ const protectedRoutes=[
 "/developers",
 "/profile",
 "/settings",
-"/notifications"
+"/notifications",
+"/admin"
 ];
 
 return protectedRoutes.includes(route);
@@ -2358,6 +3135,24 @@ location.hash="#/login";
 return;
 }
 
+if(route==="/admin" && !CodemAdmin.isAdmin()){
+updateDocumentState(route);
+
+app.innerHTML = `
+<section class="access-denied">
+  <span class="eyebrow">403</span>
+  <h1>Administrator access required</h1>
+  <p>Your account does not have permission to access this area.</p>
+  <a class="btn btn-primary" href="#/dashboard">Return to dashboard</a>
+</section>
+`;
+
+app.insertAdjacentHTML("beforeend", renderSiteFooter());
+
+nav(route);
+return;
+}
+
 if((route==="/login" || route==="/register") && CodemAuth.loggedIn()){
 if(location.hash!=="#/dashboard"){
 location.hash="#/dashboard";
@@ -2372,6 +3167,8 @@ app.innerHTML=pages["/learning/course/:id"]();
 }else{
 app.innerHTML=(pages[route]||pages["/"])();
 }
+
+app.insertAdjacentHTML("beforeend", renderSiteFooter());
 
 nav(route);
 
@@ -2533,5 +3330,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-
-

@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Codem</title>
 
-<link rel="stylesheet" href="./assets/css/main.css">
+<link rel="stylesheet" href="./assets/css/main.css?v=20260924-03">
 
-<script src="./config/config.js"></script>
-<script src="./assets/js/api.js"></script>
-<script src="./assets/js/auth.js"></script>
-<script src="./assets/js/ui.js"></script>
-<script src="./assets/js/main.js" defer></script>
+<script src="./config/config.js?v=20260924-03"></script>
+<script src="./assets/js/api.js?v=20260924-03"></script>
+<script src="./assets/js/auth.js?v=20260924-03"></script>
+<script src="./assets/js/ui.js?v=20260924-03"></script>
+<script src="./assets/js/main.js?v=20260924-03" defer></script>
 </head>
 
 <body>
@@ -146,6 +146,119 @@ export default codem;</code></pre>
 </section>
 
 </main>
+
+
+<!-- Codem privacy and browser-storage controls -->
+<div id="codem-cookie-banner" class="cookie-banner" hidden>
+  <div class="cookie-banner-content">
+    <div>
+      <strong>Privacy &amp; browser storage</strong>
+      <p>
+        Codem uses essential browser storage to operate the platform.
+        Optional preferences and analytics can be controlled here.
+      </p>
+    </div>
+
+    <div class="cookie-banner-actions">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        data-cookie-preferences
+      >
+        Preferences
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-secondary"
+        onclick="CodemCookies.essentialOnly()"
+      >
+        Essential Only
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        onclick="CodemCookies.acceptAll()"
+      >
+        Accept All
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="codem-cookie-modal" class="cookie-modal" hidden>
+  <div
+    class="cookie-modal-backdrop"
+    onclick="CodemCookies.close()"
+  ></div>
+
+  <div
+    class="cookie-modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="cookie-modal-title"
+  >
+    <button
+      type="button"
+      class="cookie-modal-close"
+      onclick="CodemCookies.close()"
+      aria-label="Close"
+    >
+      ×
+    </button>
+
+    <span class="eyebrow">PRIVACY</span>
+
+    <h2 id="cookie-modal-title">Cookie Preferences</h2>
+
+    <p>
+      Choose which optional browser storage categories Codem may use.
+    </p>
+
+    <label class="cookie-option cookie-option-disabled">
+      <span>
+        <strong>Essential</strong>
+        <small>Required for core platform functionality.</small>
+      </span>
+      <input type="checkbox" checked disabled>
+    </label>
+
+    <label class="cookie-option">
+      <span>
+        <strong>Preferences</strong>
+        <small>Stores optional interface and preference choices.</small>
+      </span>
+      <input id="cookie-preferences" type="checkbox">
+    </label>
+
+    <label class="cookie-option">
+      <span>
+        <strong>Analytics</strong>
+        <small>Optional measurement and usage analysis.</small>
+      </span>
+      <input id="cookie-analytics" type="checkbox">
+    </label>
+
+    <div class="cookie-modal-actions">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        onclick="CodemCookies.essentialOnly()"
+      >
+        Essential Only
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        onclick="CodemCookies.saveFromModal()"
+      >
+        Save Preferences
+      </button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
