@@ -6,7 +6,7 @@ export function createProject({
     name,
     slug,
     description = null,
-    visibility = "public"
+    visibility = "private"
 }) {
     db.prepare(`
         INSERT INTO projects (
@@ -85,6 +85,14 @@ export function listPublicProjects({
     `).all(limit, offset);
 }
 
+export function countPublicProjects() {
+    return db.prepare(`
+        SELECT COUNT(*) AS total
+        FROM projects
+        WHERE visibility = 'public'
+    `).get().total;
+}
+
 export function updateProject(
     id,
     data
@@ -100,17 +108,22 @@ export function updateProject(
     ];
 
     for (const field of allowedFields) {
-        if (data[field] !== undefined) {
+        if (
+            data[field] !== undefined
+        ) {
             fields.push(`${field} = ?`);
             values.push(data[field]);
         }
     }
 
-    if (fields.length === 0) {
+    if (!fields.length) {
         return findProjectById(id);
     }
 
-    fields.push("updated_at = CURRENT_TIMESTAMP");
+    fields.push(
+        "updated_at = CURRENT_TIMESTAMP"
+    );
+
     values.push(id);
 
     db.prepare(`
@@ -123,7 +136,7 @@ export function updateProject(
 }
 
 export function deleteProject(id) {
-    db.prepare(`
+    return db.prepare(`
         DELETE FROM projects
         WHERE id = ?
     `).run(id);

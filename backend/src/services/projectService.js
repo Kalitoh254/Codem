@@ -6,9 +6,20 @@ import {
     findProjectBySlug,
     listProjectsByOwner,
     listPublicProjects,
+    countPublicProjects,
     updateProject,
     deleteProject
 } from "../repositories/projectRepository.js";
+
+import {
+    recordAuditEvent
+} from "./auditLogService.js";
+
+const ALLOWED_VISIBILITY = new Set([
+    "private",
+    "public",
+    "unlisted"
+]);
 
 function normalizeName(name) {
     return name.trim().replace(/\s+/g, " ");
@@ -19,34 +30,86 @@ function createSlug(name) {
         .toLowerCase()
         .trim()
         .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 150);
 }
 
-const ALLOWED_VISIBILITY = [
-    "public",
-    "private"
-];
+function assertVisibility(value) {
+    if (!ALLOWED_VISIBILITY.has(value)) {
+        throw Object.assign(
+            new Error("Invalid project visibility."),
+            {
+                status: 400,
+                code: "INVALID_PROJECT_VISIBILITY"
+            }
+        );
+    }
+}
+
+function uniqueSlug(baseSlug, ownerId, currentId = null) {
+    let slug = baseSlug;
+
+    const existing = findProjectBySlug(slug);
+
+    if (!existing || existing.id === currentId) {
+        return slug;
+    }
+
+    const suffix = crypto.randomBytes(3).toString("hex");
+
+    slug = `${baseSlug}-${suffix}`;
+
+    const collision = findProjectBySlug(slug);
+
+    if (
+        collision &&
+        collision.id !== currentId
+    ) {
+        throw Object.assign(
+            new Error("Unable to generate a unique project slug."),
+            {
+                status: 409,
+                code: "PROJECT_SLUG_CONFLICT"
+            }
+        );
+    }
+
+    return slug;
+}
 
 export function createNewProject(
     ownerId,
-    data
+    data,
+    auditContext = {}
 ) {
-    if (!data.name || typeof data.name !== "string") {
-        const error = new Error("Project name is required.");
-        error.status = 400;
-        error.code = "PROJECT_NAME_REQUIRED";
-        throw error;
+    if (
+        !data.name ||
+        typeof data.name !== "string"
+    ) {
+        throw Object.assign(
+            new Error("Project name is required."),
+            {
+                status: 400,
+                code: "PROJECT_NAME_REQUIRED"
+            }
+        );
     }
 
     const name = normalizeName(data.name);
 
-    if (name.length < 2 || name.length > 150) {
-        const error = new Error(
-            "Project name must be between 2 and 150 characters."
+    if (
+        name.length < 2 ||
+        name.length > 150
+    ) {
+        throw Object.assign(
+            new Error(
+                "Project name must be between 2 and 150 characters."
+            ),
+            {
+                status: 400,
+                code: "INVALID_PROJECT_NAME"
+            }
         );
-        error.status = 400;
-        error.code = "INVALID_PROJECT_NAME";
-        throw error;
     }
 
     const description =
@@ -55,43 +118,44 @@ export function createNewProject(
             ? null
             : String(data.description).trim();
 
-    if (description && description.length > 5000) {
-        const error = new Error(
-            "Project description cannot exceed 5000 characters."
+    if (
+        description &&
+        description.length > 5000
+    ) {
+        throw Object.assign(
+            new Error(
+                "Project description cannot exceed 5000 characters."
+            ),
+            {
+                status: 400,
+                code: "INVALID_PROJECT_DESCRIPTION"
+            }
         );
-        error.status = 400;
-        error.code = "INVALID_PROJECT_DESCRIPTION";
-        throw error;
     }
 
     const visibility =
-        data.visibility || "public";
+        data.visibility || "private";
 
-    if (!ALLOWED_VISIBILITY.includes(visibility)) {
-        const error = new Error(
-            "Invalid project visibility."
+    assertVisibility(visibility);
+
+    const baseSlug = createSlug(name);
+
+    if (!baseSlug) {
+        throw Object.assign(
+            new Error("Invalid project name."),
+            {
+                status: 400,
+                code: "INVALID_PROJECT_NAME"
+            }
         );
-        error.status = 400;
-        error.code = "INVALID_PROJECT_VISIBILITY";
-        throw error;
     }
 
-    let slug = createSlug(name);
+    const slug = uniqueSlug(
+        baseSlug,
+        ownerId
+    );
 
-    if (!slug) {
-        const error = new Error("Invalid project name.");
-        error.status = 400;
-        error.code = "INVALID_PROJECT_NAME";
-        throw error;
-    }
-
-    const existing = findProjectBySlug(slug);
-
-    if (existing) {
-        slug = `${slug}-${crypto.randomBytes(3).toString("hex")}`;
-    }
-
-    return createProject({
+    const project = createProject({
         id: crypto.randomUUID(),
         ownerId,
         name,
@@ -99,6 +163,22 @@ export function createNewProject(
         description,
         visibility
     });
+
+    recordAuditEvent({
+        userId: ownerId,
+        action: "PROJECT_CREATED",
+        resourceType: "project",
+        resourceId: project.id,
+        ipAddress: auditContext.ipAddress ?? null,
+        userAgent: auditContext.userAgent ?? null,
+        metadata: {
+            name: project.name,
+            slug: project.slug,
+            visibility: project.visibility
+        }
+    });
+
+    return project;
 }
 
 export function getProject(id) {
@@ -116,11 +196,17 @@ export function getPublicProjects(
     page = Number(page);
     limit = Number(limit);
 
-    if (!Number.isInteger(page) || page < 1) {
+    if (
+        !Number.isInteger(page) ||
+        page < 1
+    ) {
         page = 1;
     }
 
-    if (!Number.isInteger(limit) || limit < 1) {
+    if (
+        !Number.isInteger(limit) ||
+        limit < 1
+    ) {
         limit = 20;
     }
 
@@ -128,7 +214,11 @@ export function getPublicProjects(
         limit = 50;
     }
 
-    const offset = (page - 1) * limit;
+    const offset =
+        (page - 1) * limit;
+
+    const total =
+        countPublicProjects();
 
     return {
         projects: listPublicProjects({
@@ -137,48 +227,84 @@ export function getPublicProjects(
         }),
         pagination: {
             page,
-            limit
+            limit,
+            total,
+            totalPages: Math.ceil(
+                total / limit
+            )
         }
     };
 }
 
 export function editProject(
     id,
-    data
+    data,
+    auditContext = {}
 ) {
-    const project = findProjectById(id);
+    const project =
+        findProjectById(id);
 
     if (!project) {
-        const error = new Error("Project not found.");
-        error.status = 404;
-        error.code = "PROJECT_NOT_FOUND";
-        throw error;
+        throw Object.assign(
+            new Error("Project not found."),
+            {
+                status: 404,
+                code: "PROJECT_NOT_FOUND"
+            }
+        );
     }
 
     const updates = {};
 
     if (data.name !== undefined) {
-        if (typeof data.name !== "string") {
-            const error = new Error(
-                "Project name must be a string."
+        if (
+            typeof data.name !== "string"
+        ) {
+            throw Object.assign(
+                new Error(
+                    "Project name must be a string."
+                ),
+                {
+                    status: 400,
+                    code: "INVALID_PROJECT_NAME"
+                }
             );
-            error.status = 400;
-            error.code = "INVALID_PROJECT_NAME";
-            throw error;
         }
 
-        const name = normalizeName(data.name);
+        const name =
+            normalizeName(data.name);
 
-        if (name.length < 2 || name.length > 150) {
-            const error = new Error(
-                "Project name must be between 2 and 150 characters."
+        if (
+            name.length < 2 ||
+            name.length > 150
+        ) {
+            throw Object.assign(
+                new Error(
+                    "Project name must be between 2 and 150 characters."
+                ),
+                {
+                    status: 400,
+                    code: "INVALID_PROJECT_NAME"
+                }
             );
-            error.status = 400;
-            error.code = "INVALID_PROJECT_NAME";
-            throw error;
         }
 
         updates.name = name;
+
+        const newSlug =
+            createSlug(name);
+
+        if (
+            !newSlug ||
+            newSlug !== project.slug
+        ) {
+            updates.slug =
+                uniqueSlug(
+                    newSlug,
+                    project.owner_id,
+                    id
+                );
+        }
     }
 
     if (data.description !== undefined) {
@@ -186,12 +312,15 @@ export function editProject(
             data.description !== null &&
             typeof data.description !== "string"
         ) {
-            const error = new Error(
-                "Project description must be a string."
+            throw Object.assign(
+                new Error(
+                    "Project description must be a string."
+                ),
+                {
+                    status: 400,
+                    code: "INVALID_PROJECT_DESCRIPTION"
+                }
             );
-            error.status = 400;
-            error.code = "INVALID_PROJECT_DESCRIPTION";
-            throw error;
         }
 
         updates.description =
@@ -203,54 +332,76 @@ export function editProject(
             updates.description &&
             updates.description.length > 5000
         ) {
-            const error = new Error(
-                "Project description cannot exceed 5000 characters."
+            throw Object.assign(
+                new Error(
+                    "Project description cannot exceed 5000 characters."
+                ),
+                {
+                    status: 400,
+                    code: "INVALID_PROJECT_DESCRIPTION"
+                }
             );
-            error.status = 400;
-            error.code = "INVALID_PROJECT_DESCRIPTION";
-            throw error;
         }
     }
 
     if (data.visibility !== undefined) {
-        if (!ALLOWED_VISIBILITY.includes(data.visibility)) {
-            const error = new Error(
-                "Invalid project visibility."
-            );
-            error.status = 400;
-            error.code = "INVALID_PROJECT_VISIBILITY";
-            throw error;
-        }
+        assertVisibility(
+            data.visibility
+        );
 
-        updates.visibility = data.visibility;
+        updates.visibility =
+            data.visibility;
     }
 
-    if (updates.name !== undefined) {
-        const newSlug = createSlug(updates.name);
+    const updated =
+        updateProject(id, updates);
 
-        if (newSlug && newSlug !== project.slug) {
-            const existing = findProjectBySlug(newSlug);
-
-            if (!existing || existing.id === id) {
-                updates.slug = newSlug;
-            }
+    recordAuditEvent({
+        userId: auditContext.userId ?? null,
+        action: "PROJECT_UPDATED",
+        resourceType: "project",
+        resourceId: id,
+        ipAddress: auditContext.ipAddress ?? null,
+        userAgent: auditContext.userAgent ?? null,
+        metadata: {
+            changedFields: Object.keys(updates)
         }
-    }
+    });
 
-    return updateProject(id, updates);
+    return updated;
 }
 
-export function removeProject(id) {
-    const project = findProjectById(id);
+export function removeProject(
+    id,
+    auditContext = {}
+) {
+    const project =
+        findProjectById(id);
 
     if (!project) {
-        const error = new Error("Project not found.");
-        error.status = 404;
-        error.code = "PROJECT_NOT_FOUND";
-        throw error;
+        throw Object.assign(
+            new Error("Project not found."),
+            {
+                status: 404,
+                code: "PROJECT_NOT_FOUND"
+            }
+        );
     }
 
     deleteProject(id);
+
+    recordAuditEvent({
+        userId: auditContext.userId ?? null,
+        action: "PROJECT_DELETED",
+        resourceType: "project",
+        resourceId: id,
+        ipAddress: auditContext.ipAddress ?? null,
+        userAgent: auditContext.userAgent ?? null,
+        metadata: {
+            name: project.name,
+            slug: project.slug
+        }
+    });
 
     return {
         message: "Project deleted successfully."
