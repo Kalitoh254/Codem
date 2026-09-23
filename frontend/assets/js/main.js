@@ -2127,10 +2127,6 @@ if(isCourseRoute){
 loadCourseView(decodeURIComponent(courseMatch[1]));
 }
 
-if(route==="/learning"){
-loadCourses();
-}
-
 if(route==="/practice"){
 loadChallenges();
 }
