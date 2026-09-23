@@ -1,20 +1,32 @@
 import db from "../database/db.js";
 
+const PUBLIC_CHALLENGE_COLUMNS = `
+    id,
+    title,
+    slug,
+    description,
+    difficulty,
+    language,
+    instructions,
+    starter_code,
+    status,
+    created_at,
+    updated_at
+`;
+
 export function listChallenges({ limit, offset, difficulty }) {
-    const conditions = [];
-    const params = [];
+    const conditions = ["status = ?"];
+    const params = ["published"];
 
     if (difficulty) {
         conditions.push("difficulty = ?");
         params.push(difficulty);
     }
 
-    const where = conditions.length
-        ? `WHERE ${conditions.join(" AND ")}`
-        : "";
+    const where = `WHERE ${conditions.join(" AND ")}`;
 
     return db.prepare(`
-        SELECT *
+        SELECT ${PUBLIC_CHALLENGE_COLUMNS}
         FROM challenges
         ${where}
         ORDER BY created_at DESC
@@ -23,17 +35,15 @@ export function listChallenges({ limit, offset, difficulty }) {
 }
 
 export function countChallenges({ difficulty }) {
-    const conditions = [];
-    const params = [];
+    const conditions = ["status = ?"];
+    const params = ["published"];
 
     if (difficulty) {
         conditions.push("difficulty = ?");
         params.push(difficulty);
     }
 
-    const where = conditions.length
-        ? `WHERE ${conditions.join(" AND ")}`
-        : "";
+    const where = `WHERE ${conditions.join(" AND ")}`;
 
     return db.prepare(`
         SELECT COUNT(*) AS total
@@ -47,6 +57,15 @@ export function findChallenge(id) {
         SELECT *
         FROM challenges
         WHERE id = ?
+    `).get(id);
+}
+
+export function findPublishedChallenge(id) {
+    return db.prepare(`
+        SELECT ${PUBLIC_CHALLENGE_COLUMNS}
+        FROM challenges
+        WHERE id = ?
+        AND status = 'published'
     `).get(id);
 }
 

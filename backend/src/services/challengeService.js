@@ -5,7 +5,8 @@ import {
     findChallenge,
     createChallenge,
     updateChallenge,
-    deleteChallenge
+    deleteChallenge,
+    findPublishedChallenge
 } from "../repositories/challengeRepository.js";
 
 function slugify(value) {
@@ -59,7 +60,16 @@ export function getChallenges(options = {}) {
 }
 
 export function getChallenge(id) {
-    return assertChallenge(id);
+    const challenge = findPublishedChallenge(id);
+
+    if (!challenge) {
+        throw Object.assign(
+            new Error("Challenge not found."),
+            { status: 404, code: "CHALLENGE_NOT_FOUND" }
+        );
+    }
+
+    return challenge;
 }
 
 export function createNewChallenge(data) {
