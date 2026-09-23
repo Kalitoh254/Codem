@@ -2089,7 +2089,13 @@ box.innerHTML=`
 function render(){
 const route=normalizeRoute();
 
-if(requireAuthRoute(route) && !CodemAuth.loggedIn()){
+const courseMatch=route.match(/^\/learning\/course\/([^/]+)$/);
+const isCourseRoute=Boolean(courseMatch);
+
+if(
+(isCourseRoute || requireAuthRoute(route)) &&
+!CodemAuth.loggedIn()
+){
 if(location.hash!=="#/login"){
 location.hash="#/login";
 }
@@ -2105,12 +2111,24 @@ return;
 
 updateDocumentState(route);
 
+if(isCourseRoute){
+app.innerHTML=pages["/learning/course/:id"]();
+}else{
 app.innerHTML=(pages[route]||pages["/"])();
+}
 
 nav(route);
 
 if(route==="/dashboard"){
 loadDashboard();
+}
+
+if(route==="/learning"){
+loadCourses();
+}
+
+if(isCourseRoute){
+loadCourseView(decodeURIComponent(courseMatch[1]));
 }
 
 if(route==="/learning"){
