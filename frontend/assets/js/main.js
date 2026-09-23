@@ -367,18 +367,42 @@ ${CodemUI.loading("Loading your workspace...")}
 </section>`,
 
 "/learning":()=>`
-<section class="page">
-<div class="page-header">
+<section class="page learning-page">
+
+<div class="page-header learning-header">
 <div>
-<span class="eyebrow">LEARNING</span>
-<h1>Learning Paths</h1>
-<p>Build practical development skills through structured learning.</p>
+<span class="eyebrow">CODEM LEARNING</span>
+<h1>Learn by building.</h1>
+<p>
+Structured courses designed to help you understand concepts,
+practice them and apply them to real development work.
+</p>
 </div>
+</div>
+
+<div class="learning-toolbar">
+
+<div class="learning-search">
+<label for="course-search">Search courses</label>
+<input
+id="course-search"
+type="search"
+placeholder="Search by course name or topic..."
+autocomplete="off"
+oninput="filterCourses(this.value)"
+>
+</div>
+
+<div class="learning-summary">
+<span id="course-count">Loading courses...</span>
+</div>
+
 </div>
 
 <div id="learning-content">
 ${CodemUI.loading("Loading courses...")}
 </div>
+
 </section>`,
 
 "/practice":()=>`
