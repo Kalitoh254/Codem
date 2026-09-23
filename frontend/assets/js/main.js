@@ -1926,10 +1926,6 @@ CodemUI.toast(e.message,"error");
 }
 }
 
-atch(e){
-CodemUI.toast(e.message,"error");
-}
-}
 
 async function loadDashboard(){
 const target=document.getElementById("dashboard-content");
