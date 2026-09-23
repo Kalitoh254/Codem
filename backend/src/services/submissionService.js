@@ -63,6 +63,7 @@ export function submitChallenge(userId, challengeId, data) {
         language: data.language,
         status: databaseStatus,
         score: evaluation.score,
+        feedback: evaluation.feedback,
         executionTimeMs: null,
         memoryUsed: null
     });

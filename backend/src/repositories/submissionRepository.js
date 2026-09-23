@@ -10,12 +10,13 @@ export function createSubmission(data) {
             source_code,
             status,
             score,
+            feedback,
             execution_time_ms,
             memory_used,
             submitted_at
         )
         VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP
         )
     `).run(
         data.id,
@@ -25,6 +26,7 @@ export function createSubmission(data) {
         data.sourceCode,
         data.status,
         data.score ?? null,
+        data.feedback ?? null,
         data.executionTimeMs ?? null,
         data.memoryUsed ?? null
     );
@@ -42,6 +44,7 @@ export function findSubmission(id) {
             s.source_code,
             s.status,
             s.score,
+            s.feedback,
             s.execution_time_ms,
             s.memory_used,
             s.submitted_at,
@@ -80,6 +83,7 @@ export function listUserSubmissions(userId, challengeId) {
             s.language,
             s.status,
             s.score,
+            s.feedback,
             s.execution_time_ms,
             s.memory_used,
             s.submitted_at,
