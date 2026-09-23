@@ -1676,20 +1676,32 @@ return;
 
 const title=course.title||course.name||"Untitled Course";
 const description=course.description||"No course description available.";
-const level=course.level||course.difficulty||"All levels";
+const level=course.difficulty||course.level||"All levels";
 const category=course.category||course.topic||"Development";
 
-const completedLessons=Array.isArray(progress?.lessons)
-?progress.lessons.filter(item=>item.completed).length
-:Number(progress?.completed_lessons||progress?.completedLessons||0);
+const completedLessons=Number(
+progress?.completedLessons||
+progress?.completed_lessons||
+0
+);
 
 const totalLessons=lessons.length;
 const calculatedProgress=totalLessons
 ?Math.round((completedLessons/totalLessons)*100)
-:Number(progress?.percentage||progress?.progress||0);
+:Number(
+progress?.percentage||
+progress?.progress||
+0
+);
+
+const safeProgress=Math.max(
+0,
+Math.min(100,calculatedProgress)
+);
+
+const courseId=course.id||course.course_id||"";
 
 target.innerHTML=`
-
 <div class="course-view">
 
 <div class="course-view-top">
@@ -1704,7 +1716,9 @@ onclick="location.hash='#/learning'">
 
 <div class="course-overview-main">
 
-<span class="eyebrow">${CodemUI.escape(category)}</span>
+<span class="eyebrow">
+${CodemUI.escape(category)}
+</span>
 
 <h1>${CodemUI.escape(title)}</h1>
 
@@ -1712,21 +1726,30 @@ onclick="location.hash='#/learning'">
 
 <div class="course-overview-meta">
 <span>${CodemUI.escape(level)}</span>
-<span>${totalLessons} lesson${totalLessons===1?"":"s"}</span>
+<span>
+${totalLessons}
+lesson${totalLessons===1?"":"s"}
+</span>
 </div>
 
 </div>
 
-<div class="course-progress-card">
+<aside class="course-progress-card">
 
 <span class="card-label">YOUR PROGRESS</span>
 
-<strong>${calculatedProgress}%</strong>
+<strong>${safeProgress}%</strong>
 
-<div class="progress-track">
+<div
+class="progress-track"
+role="progressbar"
+aria-valuenow="${safeProgress}"
+aria-valuemin="0"
+aria-valuemax="100"
+aria-label="Course progress">
 <div
 class="progress-bar"
-style="width:${Math.max(0,Math.min(100,calculatedProgress))}%">
+style="width:${safeProgress}%">
 </div>
 </div>
 
@@ -1734,74 +1757,106 @@ style="width:${Math.max(0,Math.min(100,calculatedProgress))}%">
 ${completedLessons} of ${totalLessons} lessons completed
 </p>
 
+${
+safeProgress===100
+?`
+<div class="course-complete-message">
+Course completed
+</div>
+`
+:""
+}
+
+${
+courseId
+?`
 <button
 class="btn btn-primary"
-onclick="enrollCourse('${CodemUI.escape(course.id||course.course_id||"")}')">
-Start / Continue Course
+onclick="enrollCourse('${CodemUI.escape(courseId)}')">
+${completedLessons>0?"Continue Course":"Start Course"}
 </button>
+`
+:""
+}
+
+</aside>
 
 </div>
 
-</div>
-
-<div class="lesson-section">
+<section class="lesson-section">
 
 <div class="section-heading">
 <span class="eyebrow">COURSE CONTENT</span>
 <h2>Lessons</h2>
-<p>Work through each lesson and track your progress as you learn.</p>
+<p>
+Work through each lesson and track your progress as you learn.
+</p>
 </div>
 
 <div class="lesson-list">
 
-${lessons.length?lessons.map((lesson,index)=>{
+${
+lessons.length
+?lessons.map((lesson,index)=>{
 
-const lessonProgress=Array.isArray(progress?.lessons)
-?progress.lessons.find(item=>
-String(item.lesson_id||item.id)===String(lesson.id)
-)
-:null;
+const lessonTitle=
+lesson.title||
+lesson.name||
+`Lesson ${index+1}`;
 
-const completed=Boolean(
-lesson.completed||
-lessonProgress?.completed
-);
+const lessonDescription=
+lesson.description||
+"Continue learning through this lesson.";
 
-const lessonTitle=lesson.title||lesson.name||`Lesson ${index+1}`;
-const lessonDescription=lesson.description||"Continue learning through this lesson.";
+const lessonId=
+lesson.id||
+lesson.lesson_id||
+"";
 
 return `
-<article class="lesson-item ${completed?"lesson-completed":""}">
+<article class="lesson-item">
 
 <div class="lesson-number">
-${completed?"✓":String(index+1).padStart(2,"0")}
+${String(index+1).padStart(2,"0")}
 </div>
 
 <div class="lesson-content">
+<span class="lesson-position">
+LESSON ${index+1}
+</span>
+
 <h3>${CodemUI.escape(lessonTitle)}</h3>
-<p>${CodemUI.escape(lessonDescription)}</p>
+
+<p>
+${CodemUI.escape(lessonDescription)}
+</p>
 </div>
 
 <div class="lesson-actions">
 
 <button
 class="btn btn-secondary"
-onclick="openLesson('${CodemUI.escape(lesson.id||lesson.lesson_id||"")}')">
-${completed?"Review":"Open"}
+onclick="openLesson('${CodemUI.escape(lessonId)}')">
+Open
 </button>
 
 </div>
 
-</article>`;
+</article>
+`;
 
 }).join("")
-:CodemUI.empty("This course does not have any lessons yet.")}
+:CodemUI.empty(
+"This course does not have any lessons yet."
+)
+}
 
 </div>
 
-</div>
+</section>
 
-</div>`;
+</div>
+`;
 }
 
 async function openLesson(lessonId){
