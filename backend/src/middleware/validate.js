@@ -8,9 +8,11 @@ export function validateBody(rules) {
 
                 if (
                     rule.required &&
-                    (value === undefined ||
+                    (
+                        value === undefined ||
                         value === null ||
-                        value === "")
+                        value === ""
+                    )
                 ) {
                     const error = new Error(
                         `${field} is required.`
@@ -25,22 +27,32 @@ export function validateBody(rules) {
                 if (
                     value !== undefined &&
                     value !== null &&
-                    rule.type &&
-                    typeof value !== rule.type
+                    rule.type
                 ) {
-                    const error = new Error(
-                        `${field} must be a ${rule.type}.`
-                    );
+                    let validType = true;
 
-                    error.status = 400;
-                    error.code = "VALIDATION_ERROR";
+                    if (rule.type === "array") {
+                        validType = Array.isArray(value);
+                    } else {
+                        validType =
+                            typeof value === rule.type;
+                    }
 
-                    throw error;
+                    if (!validType) {
+                        const error = new Error(
+                            `${field} must be a ${rule.type}.`
+                        );
+
+                        error.status = 400;
+                        error.code = "VALIDATION_ERROR";
+
+                        throw error;
+                    }
                 }
 
                 if (
                     typeof value === "string" &&
-                    rule.minLength &&
+                    rule.minLength !== undefined &&
                     value.length < rule.minLength
                 ) {
                     const error = new Error(
@@ -55,7 +67,7 @@ export function validateBody(rules) {
 
                 if (
                     typeof value === "string" &&
-                    rule.maxLength &&
+                    rule.maxLength !== undefined &&
                     value.length > rule.maxLength
                 ) {
                     const error = new Error(
@@ -82,6 +94,57 @@ export function validateBody(rules) {
                     error.code = "VALIDATION_ERROR";
 
                     throw error;
+                }
+
+                if (
+                    Array.isArray(value) &&
+                    rule.minItems !== undefined &&
+                    value.length < rule.minItems
+                ) {
+                    const error = new Error(
+                        `${field} must contain at least ${rule.minItems} items.`
+                    );
+
+                    error.status = 400;
+                    error.code = "VALIDATION_ERROR";
+
+                    throw error;
+                }
+
+                if (
+                    Array.isArray(value) &&
+                    rule.maxItems !== undefined &&
+                    value.length > rule.maxItems
+                ) {
+                    const error = new Error(
+                        `${field} must contain no more than ${rule.maxItems} items.`
+                    );
+
+                    error.status = 400;
+                    error.code = "VALIDATION_ERROR";
+
+                    throw error;
+                }
+
+                if (
+                    Array.isArray(value) &&
+                    rule.itemType
+                ) {
+                    const invalidItem = value.some(
+                        item =>
+                            typeof item !== rule.itemType
+                    );
+
+                    if (invalidItem) {
+                        const error = new Error(
+                            `${field} items must be ${rule.itemType}s.`
+                        );
+
+                        error.status = 400;
+                        error.code = "VALIDATION_ERROR";
+
+                        throw error;
+                    }
                 }
             }
 

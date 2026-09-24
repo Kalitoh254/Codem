@@ -4,7 +4,10 @@ export function createCourseController(req, res, next) {
     try {
         res.status(201).json({
             success: true,
-            data: service.createNewCourse(req.body)
+            data: service.createNewCourse(
+                req.body,
+                req.user.id
+            )
         });
     } catch (error) {
         next(error);
@@ -16,6 +19,19 @@ export function listCoursesController(req, res, next) {
         res.json({
             success: true,
             data: service.getCourses(req.query)
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export function getCourseCurriculumController(req, res, next) {
+    try {
+        res.json({
+            success: true,
+            data: service.getCourseCurriculum(
+                req.params.id
+            )
         });
     } catch (error) {
         next(error);
@@ -37,7 +53,10 @@ export function updateCourseController(req, res, next) {
     try {
         res.json({
             success: true,
-            data: service.editCourse(req.params.id, req.body)
+            data: service.editCourse(
+                req.params.id,
+                req.body
+            )
         });
     } catch (error) {
         next(error);

@@ -11,6 +11,17 @@ export function listLessonsController(req, res, next) {
     }
 }
 
+export function listModuleLessonsController(req, res, next) {
+    try {
+        res.json({
+            success: true,
+            data: service.getLessonsByModule(req.params.moduleId)
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 export function getLessonController(req, res, next) {
     try {
         res.json({

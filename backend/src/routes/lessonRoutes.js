@@ -1,9 +1,11 @@
 import express from "express";
+
 import { requireAuth } from "../middleware/auth.js";
 import { requireRole } from "../middleware/rbac.js";
 
 import {
     listLessonsController,
+    listModuleLessonsController,
     getLessonController,
     createLessonController,
     updateLessonController,
@@ -12,8 +14,20 @@ import {
 
 const router = express.Router();
 
-router.get("/course/:courseId", listLessonsController);
-router.get("/:id", getLessonController);
+router.get(
+    "/course/:courseId",
+    listLessonsController
+);
+
+router.get(
+    "/module/:moduleId",
+    listModuleLessonsController
+);
+
+router.get(
+    "/:id",
+    getLessonController
+);
 
 router.post(
     "/course/:courseId",

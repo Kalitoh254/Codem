@@ -1,93 +1,72 @@
 import db from "../database/db.js";
 
-export function listLessons(courseId) {
+export function listModules(courseId) {
     return db.prepare(`
         SELECT *
-        FROM lessons
+        FROM course_modules
         WHERE course_id = ?
         ORDER BY position ASC, created_at ASC
     `).all(courseId);
 }
 
-export function listLessonsByModule(moduleId) {
+export function findModuleById(id) {
     return db.prepare(`
         SELECT *
-        FROM lessons
-        WHERE module_id = ?
-        ORDER BY position ASC, created_at ASC
-    `).all(moduleId);
-}
-
-export function findLessonById(id) {
-    return db.prepare(`
-        SELECT *
-        FROM lessons
+        FROM course_modules
         WHERE id = ?
     `).get(id);
 }
 
-export function findLessonBySlug(courseId, slug) {
+export function findModuleBySlug(courseId, slug) {
     return db.prepare(`
         SELECT *
-        FROM lessons
+        FROM course_modules
         WHERE course_id = ?
           AND slug = ?
     `).get(courseId, slug);
 }
 
-export function createLesson(data) {
+export function createModule(data) {
     db.prepare(`
-        INSERT INTO lessons (
+        INSERT INTO course_modules (
             id,
             course_id,
-            module_id,
             title,
             slug,
             description,
-            content,
             position,
-            lesson_type,
-            is_required,
-            estimated_minutes,
+            status,
             created_at,
             updated_at
         )
         VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?, ?,
             CURRENT_TIMESTAMP,
             CURRENT_TIMESTAMP
         )
     `).run(
         data.id,
         data.courseId,
-        data.moduleId ?? null,
         data.title,
         data.slug,
-        data.description ?? "",
-        data.content ?? "",
+        data.description,
         data.position,
-        data.lessonType ?? "reading",
-        data.isRequired ?? 1,
-        data.estimatedMinutes ?? null
+        data.status
     );
 
-    return findLessonById(data.id);
+    return findModuleById(data.id);
 }
 
-export function updateLesson(id, data) {
+export function updateModule(id, data) {
     const fields = [];
     const params = [];
 
     for (const field of [
-        "module_id",
         "title",
         "slug",
         "description",
-        "content",
         "position",
-        "lesson_type",
-        "is_required",
-        "estimated_minutes"
+        "status"
     ]) {
         if (data[field] !== undefined) {
             fields.push(`${field} = ?`);
@@ -96,24 +75,24 @@ export function updateLesson(id, data) {
     }
 
     if (!fields.length) {
-        return findLessonById(id);
+        return findModuleById(id);
     }
 
     fields.push("updated_at = CURRENT_TIMESTAMP");
     params.push(id);
 
     db.prepare(`
-        UPDATE lessons
+        UPDATE course_modules
         SET ${fields.join(", ")}
         WHERE id = ?
     `).run(...params);
 
-    return findLessonById(id);
+    return findModuleById(id);
 }
 
-export function deleteLesson(id) {
+export function deleteModule(id) {
     return db.prepare(`
-        DELETE FROM lessons
+        DELETE FROM course_modules
         WHERE id = ?
     `).run(id);
 }

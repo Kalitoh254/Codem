@@ -6,6 +6,7 @@ import projectMemberRoutes from "./routes/projectMemberRoutes.js";
 import projectFileRoutes from "./routes/projectFileRoutes.js";
 import courseRoutes from "./routes/courseRoutes.js";
 import lessonRoutes from "./routes/lessonRoutes.js";
+import moduleRoutes from "./routes/moduleRoutes.js";
 import learningRoutes from "./routes/learningRoutes.js";
 import challengeRoutes from "./routes/challengeRoutes.js";
 import submissionRoutes from "./routes/submissionRoutes.js";
@@ -102,6 +103,7 @@ app.use("/api/v1/projects", projectRoutes);
 app.use("/api/v1/certificates", certificateRoutes);
 app.use("/api/v1/learning", learningRoutes);
 app.use("/api/v1/lessons", lessonRoutes);
+app.use("/api/v1/modules", moduleRoutes);
 app.use("/api/v1/courses", courseRoutes);
 
 app.use("/api/v1/developers/skills", developerSkillRoutes);
